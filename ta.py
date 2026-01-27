@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752659 
+ADMIN_ID = 6339752654 
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -91,6 +91,7 @@ QUESTIONS = {
         "📞 Qo'shimcha telefon raqami:", 
         "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", 
         "🧑‍💻 Qanday dasturlarda ishlay olasiz?", "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", 
+        "🏢 Oxirgi ishlagan joyingiz:", # <-- Yangi savol
         "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", 
         "💰 Oylik maoshni yozing (siz xohlagan):"
     ],
@@ -100,6 +101,7 @@ QUESTIONS = {
         "📞 Дополнительный номер телефона:", 
         "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", "🏫 В каком университете Вы учились или учитесь?", 
         "🧑‍💻 В каких программах Вы умеете работать?", "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", 
+        "🏢 Последнее место работы:", # <-- Yangi savol
         "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", 
         "💰 Напишите желаемую зарплату:"
     ]
@@ -186,7 +188,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        if current_step == 13: # Qo'shimcha tel qo'shilgani uchun index 13
+        if current_step == 14: # Yangi savol qo'shilgani uchun index 14 ga surildi
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -208,7 +210,8 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
-    labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Ish", "Maosh"]
+    # Yangi savol qo'shilgani uchun label ro'yxati yangilandi
+    labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
