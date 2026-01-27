@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 7351189083 
+ADMIN_ID = 6339752654 
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -37,7 +37,7 @@ async def start_web_server():
     await site.start()
     logging.info(f"Web server started on port {port}")
 
-# --- MATNLAR LUG'ATI (Rasmga asosan to'ldirildi) ---
+# --- MATNLAR LUG'ATI ---
 INFO_TEXTS = {
     'uz': (
         "Salom 👋\n"
@@ -57,6 +57,7 @@ INFO_TEXTS = {
         "🧑‍💻: Qanday dasturlarda ishlay olasiz?\n"
         "🇷🇺🇺🇿🇺🇸: Qaysi tillarni bilasiz?\n"
         "🔍📍: Tuman?\n"
+        "🏢: Oxirgi ishlagan joyingiz?\n" # <-- Ro'yxatdagi ko'rinishi
         "🧰: Qanday ishda ishlashni xohlaysiz?\n"
         "💰: Oylik maoshni yozing (siz xohlagan)\n\n"
         "⏳ **Tayyor bo'ling, so'rovnomani boshlaymiz...**"
@@ -78,6 +79,7 @@ INFO_TEXTS = {
         "🧑‍💻: В каких программах Вы умеете работать?\n"
         "🇷🇺🇺🇿🇺🇸: Какие языки Вы знаете?\n"
         "🔍📍: Район?\n"
+        "🏢: Последнее место работы?\n" # <-- Ro'yxatdagi ko'rinishi
         "🧰: На какой должности Вы хотите работать?\n"
         "💰: Напишите желаемую зарплату\n\n"
         "⏳ **Будьте готовы, начинаем опрос...**"
@@ -91,7 +93,7 @@ QUESTIONS = {
         "📞 Qo'shimcha telefon raqami:", 
         "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", 
         "🧑‍💻 Qanday dasturlarda ishlay olasiz?", "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", 
-        "🏢 Oxirgi ishlagan joyingiz:", # <-- Yangi savol
+        "🏢 Oxirgi ishlagan joyingiz:", # <-- 13-savol (index 13)
         "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", 
         "💰 Oylik maoshni yozing (siz xohlagan):"
     ],
@@ -101,7 +103,7 @@ QUESTIONS = {
         "📞 Дополнительный номер телефона:", 
         "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", "🏫 В каком университете Вы учились или учитесь?", 
         "🧑‍💻 В каких программах Вы умеете работать?", "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", 
-        "🏢 Последнее место работы:", # <-- Yangi savol
+        "🏢 Последнее место работы:", # <-- 13-savol (index 13)
         "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", 
         "💰 Напишите желаемую зарплату:"
     ]
@@ -125,18 +127,12 @@ async def cmd_start(message: types.Message, state: FSMContext):
 async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
-    
-    # AVVAL TUSHUNTIRISH MATNINI CHIQARAMIZ
     await callback.message.answer(INFO_TEXTS[lang])
-    
-    # 3 SONIYA KUTIB, KEYIN BIRINCHI SAVOLNI BERAMIZ (Rasmdagidek bo'lishi uchun)
     await asyncio.sleep(3)
     await callback.message.answer(QUESTIONS[lang][0])
-    
     await state.set_state(Anketa.step)
     await callback.answer()
 
-# --- ISH TANLASH CALLBACK HANDLERI (2 TA TANLASH UCHUN) ---
 @dp.callback_query(F.data.startswith("job_"), Anketa.step)
 async def job_selection(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
@@ -188,7 +184,8 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        if current_step == 14: # Yangi savol qo'shilgani uchun index 14 ga surildi
+        # Ish tanlash bo'limi savol indexiga qarab tekshiriladi
+        if current_step == 14: 
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -210,7 +207,7 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
-    # Yangi savol qo'shilgani uchun label ro'yxati yangilandi
+    # Label ro'yxati yangi savol bilan (Oxirgi ish)
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
