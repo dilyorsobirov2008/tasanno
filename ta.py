@@ -57,7 +57,7 @@ INFO_TEXTS = {
         "🧑‍💻: Qanday dasturlarda ishlay olasiz?\n"
         "🇷🇺🇺🇿🇺🇸: Qaysi tillarni bilasiz?\n"
         "🔍📍: Tuman?\n"
-        "🏢: Oxirgi ishlagan joyingiz?\n" # <-- Ro'yxatdagi ko'rinishi
+        "🏢: Oxirgi ishlagan joyingiz?\n"
         "🧰: Qanday ishda ishlashni xohlaysiz?\n"
         "💰: Oylik maoshni yozing (siz xohlagan)\n\n"
         "⏳ **Tayyor bo'ling, so'rovnomani boshlaymiz...**"
@@ -79,7 +79,7 @@ INFO_TEXTS = {
         "🧑‍💻: В каких программах Вы умеете работать?\n"
         "🇷🇺🇺🇿🇺🇸: Какие языки Вы знаете?\n"
         "🔍📍: Район?\n"
-        "🏢: Последнее место работы?\n" # <-- Ro'yxatdagi ko'rinishi
+        "🏢: Последнее место работы?\n"
         "🧰: На какой должности Вы хотите работать?\n"
         "💰: Напишите желаемую зарплату\n\n"
         "⏳ **Будьте готовы, начинаем опрос...**"
@@ -90,20 +90,18 @@ QUESTIONS = {
     'uz': [
         "👤 FISH kiriting:", "📆 Tug'ilgan sanangiz (03-04-1999):", "📍 Tug'ilgan joy va aniq manzil?", 
         "👨‍👩‍👧‍👦 Turmush qurganmisiz?", "💼 Qanday sohada o'qigansiz?", "📞 Telefon raqamingiz (+998...):", 
-        "📞 Qo'shimcha telefon raqami:", 
-        "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", 
-        "🧑‍💻 Qanday dasturlarda ishlay olasiz?", "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", 
-        "🏢 Oxirgi ishlagan joyingiz:", # <-- 13-savol (index 13)
+        "📞 Qo'shimcha telefon raqami:", "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", 
+        "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", "🧑‍💻 Qanday dasturlarda ishlay olasiz?", 
+        "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", "🏢 Oxirgi ishlagan joyingiz:", 
         "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", 
         "💰 Oylik maoshni yozing (siz xohlagan):"
     ],
     'ru': [
         "👤 Введите ваше ФИО:", "📆 Введите дату рождения (03-04-1999):", "📍 Место рождения и ваш точный адрес?", 
         "👨‍👩‍👧‍👦 Вы замужем или женаты?", "💼 В какой сфере Вы учились?", "📞 Ваш номер телефона (+998...):", 
-        "📞 Дополнительный номер телефона:", 
-        "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", "🏫 В каком университете Вы учились или учитесь?", 
-        "🧑‍💻 В каких программах Вы умеете работать?", "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", 
-        "🏢 Последнее место работы:", # <-- 13-savol (index 13)
+        "📞 Дополнительный номер телефона:", "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", 
+        "🏫 В каком университете Вы учились или учитесь?", "🧑‍💻 В каких программах Вы умеете работать?", 
+        "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", "🏢 Последнее место работы:", 
         "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", 
         "💰 Напишите желаемую зарплату:"
     ]
@@ -184,8 +182,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        # Ish tanlash bo'limi savol indexiga qarab tekshiriladi
-        if current_step == 14: 
+        if current_step == 14: # Ish tanlash savoli tartibi
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -195,6 +192,7 @@ async def process_steps(message: types.Message, state: FSMContext):
         else:
             await message.answer(QUESTIONS[lang][current_step])
     else:
+        # Hamma savollar tugadi, rasmga o'tamiz
         await state.update_data(answers=answers)
         prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото:"
         await message.answer(prompt)
@@ -207,15 +205,18 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
-    # Label ro'yxati yangi savol bilan (Oxirgi ish)
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 **{labels[i]}:** {ans}\n"
     
+    # Adminga yuborish
     await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
-    await message.answer("Rahmat! Ma'lumotlaringiz yuborildi." if lang == 'uz' else "Спасибо! Данные отправлены.")
+    
+    # Foydalanuvchiga tasdiqlash
+    thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
+    await message.answer(thanks)
     await state.clear()
 
 async def main():
