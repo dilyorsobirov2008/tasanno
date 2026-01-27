@@ -43,7 +43,7 @@ INFO_TEXTS = {
         "Salom 👋\n"
         "Ushbu bot Tasannoda anketalarni to'ldirish va mehnat uchun mo'ljallangan!\n"
         "Bu yerda siz o'zingizning arizangizni 📄 to'ldirishingiz ✍️ va "
-        "bizning kompanimizdagi mavjud bo'sh ish o'rinlari haqida bilib olishingiz mumkin!\n\n"
+        "bizning kompaniyamizdagi mavjud bo'sh ish o'rinlari haqida bilib olishingiz mumkin!\n\n"
         "Anketa savollari quyidagicha bo'ladi:\n"
         "👤: FISH\n"
         "📆: 03-04-1999\n"
@@ -86,6 +86,7 @@ INFO_TEXTS = {
     )
 }
 
+# JAMI 16 TA SAVOL
 QUESTIONS = {
     'uz': [
         "👤 FISH kiriting:", "📆 Tug'ilgan sanangiz (03-04-1999):", "📍 Tug'ilgan joy va aniq manzil?", 
@@ -93,7 +94,7 @@ QUESTIONS = {
         "📞 Qo'shimcha telefon raqami:", "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", 
         "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", "🧑‍💻 Qanday dasturlarda ishlay olasiz?", 
         "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", "🏢 Oxirgi ishlagan joyingiz:", 
-        "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", 
+        "🧰 Qaysi sohalarda ishlamoqchisiz? (1-2 ta tanlang va 'Tasdiqlash'ni bosing):", 
         "💰 Oylik maoshni yozing (siz xohlagan):"
     ],
     'ru': [
@@ -182,7 +183,8 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        if current_step == 14: # Ish tanlash savoli tartibi
+        # ISH TANLASH SAVOLI (INDEX 14)
+        if current_step == 14: 
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -192,9 +194,9 @@ async def process_steps(message: types.Message, state: FSMContext):
         else:
             await message.answer(QUESTIONS[lang][current_step])
     else:
-        # Hamma savollar tugadi, rasmga o'tamiz
+        # RASM SO'RASH BOSQICHI
         await state.update_data(answers=answers)
-        prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото:"
+        prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото (3х4 или селфи):"
         await message.answer(prompt)
         await state.set_state(Anketa.photo)
 
@@ -205,16 +207,17 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
+    # 16 TA SAVOL UCHUN LABELLAR
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 **{labels[i]}:** {ans}\n"
     
-    # Adminga yuborish
+    # ADMINGA YUBORISH
     await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
     
-    # Foydalanuvchiga tasdiqlash
+    # FOYDALANUVCHIGA TASDIQLASH JAVOBI
     thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
     await message.answer(thanks)
     await state.clear()
