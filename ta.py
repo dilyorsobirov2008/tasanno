@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
-# --- ISH BO'LIMLARI TUGMALARI ---
+# --- ISH BO'LIMLARI TUGMALARI (Tilingizga moslangan) ---
 JOBS = {
     'uz': ["Ombor boʻlimi", "Sotuvchi", "Undiruvchi", "Shartnoma", "Kassa", "Operator", "Qorovul"],
     'ru': ["Складской отдел", "Продавец", "Взыскатель", "Контрактный отдел", "Кассир", "Оператор", "Охранник"]
@@ -42,11 +42,44 @@ INFO_TEXTS = {
     'uz': (
         "Salom 👋\n"
         "Ushbu bot Tasannoda anketalarni to'ldirish va mehnat uchun mo'ljallangan!\n"
+        "Bu yerda siz o'zingizning arizangizni 📄 to'ldirishingiz ✍️ va "
+        "bizning kompanimizdagi mavjud bo'sh ish o'rinlari haqida bilib olishingiz mumkin!\n\n"
+        "Anketa savollari quyidagicha bo'ladi:\n"
+        "👤: FISH\n"
+        "📆: 03-04-1999\n"
+        "📍: Tug'ilgan joy va aniq manzil?\n"
+        "👨‍👩‍👧‍👦: Turmush qurganmisiz?\n"
+        "💼: Qanday sohada o'qigansiz?\n"
+        "📞: +998xxxxxxxxx telefon raqam?\n"
+        "🧳: Ta'lim shakli?\n"
+        "🎓: Ma'lumotingiz (Oliy yoki o'rta maxsus)\n"
+        "🏫: Qaysi universitetda o'qigansiz yoki o'qiysiz\n"
+        "🧑‍💻: Qanday dasturlarda ishlay olasiz?\n"
+        "🇷🇺🇺🇿🇺🇸: Qaysi tillarni bilasiz?\n"
+        "🔍📍: Tuman?\n"
+        "🧰: Qanday ishda ishlashni xohlaysiz?\n"
+        "💰: Oylik maoshni yozing (siz xohlagan)\n\n"
         "⏳ **Tayyor bo'ling, so'rovnomani boshlaymiz...**"
     ),
     'ru': (
         "Здравствуйте 👋\n"
         "Этот бот предназначен для заполнения анкеты ✍️ и трудоустройства в Тасанно!\n"
+        "Здесь Вы можете заполнить свою анкету 📄 и узнать о вакансиях нашей Компании!\n\n"
+        "Вопросы анкеты будут следующими:\n"
+        "👤: ФИО\n"
+        "📆: 03-04-1999\n"
+        "📍: Место рождения и точный адрес?\n"
+        "👨‍👩‍👧‍👦: Вы замужем/женаты?\n"
+        "💼: В какой сфере Вы учились?\n"
+        "📞: +998xxxxxxxxx номер телефона?\n"
+        "🧳: Форма обучения?\n"
+        "🎓: Ваше образование (Высшее или средне-специальное)\n"
+        "🏫: В каком университете Вы учились или учитесь?\n"
+        "🧑‍💻: В каких программах Вы умеете работать?\n"
+        "🇷🇺🇺🇿🇺🇸: Какие языки Вы знаете?\n"
+        "🔍📍: Район?\n"
+        "🧰: На какой должности Вы хотите работать?\n"
+        "💰: Напишите желаемую зарплату\n\n"
         "⏳ **Будьте готовы, начинаем опрос...**"
     )
 }
@@ -55,20 +88,20 @@ QUESTIONS = {
     'uz': [
         "👤 FISH kiriting:", "📆 Tug'ilgan sanangiz (03-04-1999):", "📍 Tug'ilgan joy va aniq manzil?", 
         "👨‍👩‍👧‍👦 Turmush qurganmisiz?", "💼 Qanday sohada o'qigansiz?", "📞 Telefon raqamingiz (+998...):", 
-        "📞 Qo'shimcha telefon raqami:", # Yangi qo'shilgan savol
+        "📞 Qo'shimcha telefon raqami:", # Yangi savol qo'shildi
         "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", 
         "🧑‍💻 Qanday dasturlarda ishlay olasiz?", "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", 
-        "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", 
+        "🧰 Qaysi sohalarda ishlamoqchisiz? (1 yoki 2 ta tanlang va 'Tasdiqlash'ni bosing):", # Ko'p tanlovli savol
         "💰 Oylik maoshni yozing (siz xohlagan):"
     ],
     'ru': [
-        "👤 Введите ФИО:", "📆 Дата рождения (03-04-1999):", "📍 Место рождения и адрес?", 
-        "👨‍👩‍👧‍👦 Семейное положение?", "💼 Сфера обучения?", "📞 Номер телефона (+998...):", 
-        "📞 Дополнительный номер телефона:", # Yangi qo'shilgan savol
-        "🧳 Форма обучения?", "🎓 Ваше образование:", "🏫 Университет?", 
-        "🧑‍💻 В каких программах работаете?", "🇷🇺🇺🇿🇺🇸 Знание языков?", "🔍📍 Район?", 
-        "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", 
-        "💰 Желаемая зарплата:"
+        "👤 Введите ваше ФИО:", "📆 Введите дату рождения (03-04-1999):", "📍 Место рождения и ваш точный адрес?", 
+        "👨‍👩‍👧‍👦 Вы замужем или женаты?", "💼 В какой сфере Вы учились?", "📞 Ваш номер телефона (+998...):", 
+        "📞 Дополнительный номер телефона:", # Yangi savol qo'shildi
+        "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", "🏫 В каком университете Вы учились или учитесь?", 
+        "🧑‍💻 В каких программах Вы умеете работать?", "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", 
+        "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", # Ko'p tanlovli savol
+        "💰 Напишите желаемую зарплату:"
     ]
 }
 
@@ -83,7 +116,12 @@ async def cmd_start(message: types.Message, state: FSMContext):
     builder.button(text="🇺🇿 O'zbekcha", callback_data="l_uz")
     builder.button(text="🇷🇺 Русский", callback_data="l_ru")
     builder.adjust(1)
-    await message.answer("Tilni tanlang / Выберите язык:", reply_markup=builder.as_markup())
+    
+    welcome = (
+        "Tasanno savdo markazining ichki «Anketalar» to'ldirish botiga xush kelibsiz.\n"
+        "Tilni tanlang / Выберите язык:"
+    )
+    await message.answer(welcome, reply_markup=builder.as_markup())
     await state.set_state(Anketa.lang)
 
 @dp.callback_query(F.data.startswith("l_"))
@@ -91,13 +129,13 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
     await callback.message.answer(INFO_TEXTS[lang])
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
     await callback.message.answer(QUESTIONS[lang][0])
     await state.set_state(Anketa.step)
     await callback.answer()
 
-# --- ISH TANLASH CALLBACK HANDLERI (2 TA TANLASH UCHUN) ---
-@dp.callback_query(F.data.startswith("job_"))
+# --- ISH TANLASH MANTIQI (2 TA TANLASH UCHUN) ---
+@dp.callback_query(F.data.startswith("job_"), Anketa.step)
 async def job_selection(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     selected = data.get('selected_jobs', [])
@@ -109,7 +147,7 @@ async def job_selection(callback: types.CallbackQuery, state: FSMContext):
     elif len(selected) < 2:
         selected.append(job)
     else:
-        return await callback.answer("Faqat 2 ta tanlash mumkin / Можно выбрать только 2", show_alert=True)
+        return await callback.answer("Faqat 2 ta tanlash mumkin! / Можно выбрать только 2!", show_alert=True)
 
     await state.update_data(selected_jobs=selected)
     builder = InlineKeyboardBuilder()
@@ -121,13 +159,13 @@ async def job_selection(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_reply_markup(reply_markup=builder.as_markup())
     await callback.answer()
 
-@dp.callback_query(F.data == "confirm_jobs")
+@dp.callback_query(F.data == "confirm_jobs", Anketa.step)
 async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     selected = data.get('selected_jobs', [])
     lang = data['chosen_lang']
     if not selected:
-        return await callback.answer("Tanlang! / Выберите!", show_alert=True)
+        return await callback.answer("Kamida bitta soha tanlang! / Выберите хотя бы одну сферу!", show_alert=True)
     
     answers = data['answers']
     answers.append(", ".join(selected))
@@ -148,7 +186,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        if current_step == 13: # Savol qo'shilgani uchun index 12 dan 13 ga surildi
+        if current_step == 13: # Savol qo'shilgani sababli index surildi
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -171,13 +209,14 @@ async def process_photo(message: types.Message, state: FSMContext):
     photo_id = message.photo[-1].file_id
 
     # Admin paneli uchun label'lar yangilandi
-    labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Ish", "Oylik"]
+    labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Tanlangan Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 **{labels[i]}:** {ans}\n"
     
     await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
+    
     thanks = "Rahmat! Ma'lumotlaringiz va rasm adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные и фото отправлены админу."
     await message.answer(thanks)
     await state.clear()
