@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752654 
+ADMIN_ID = 7351189083 
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -222,7 +222,6 @@ async def process_photo(message: types.Message, state: FSMContext):
         logging.error(f"Error sending to admin: {e}")
 
 async def main():
-    # Web serverni Render/Heroku kabi platformalar uchun ishga tushirish
     asyncio.create_task(start_web_server())
     await dp.start_polling(bot)
 
