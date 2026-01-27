@@ -183,8 +183,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     
     if current_step < len(QUESTIONS[lang]):
         await state.update_data(answers=answers, current_step=current_step)
-        # ISH TANLASH SAVOLI (INDEX 14)
-        if current_step == 14: 
+        if current_step == 14: # Ish tanlash savoli (index 14)
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -194,7 +193,7 @@ async def process_steps(message: types.Message, state: FSMContext):
         else:
             await message.answer(QUESTIONS[lang][current_step])
     else:
-        # RASM SO'RASH BOSQICHI
+        # BARCHA MATNLI SAVOLLAR TUGAGANDA RASM SO'RASH
         await state.update_data(answers=answers)
         prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото (3х4 или селфи):"
         await message.answer(prompt)
@@ -220,7 +219,8 @@ async def process_photo(message: types.Message, state: FSMContext):
     # FOYDALANUVCHIGA TASDIQLASH JAVOBI
     thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
     await message.answer(thanks)
-    await state.clear()
+    
+    await state.clear() # Anketa tugadi
 
 async def main():
     await asyncio.gather(start_web_server(), dp.start_polling(bot))
