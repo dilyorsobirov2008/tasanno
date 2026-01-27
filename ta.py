@@ -86,7 +86,6 @@ INFO_TEXTS = {
     )
 }
 
-# JAMI 16 TA SAVOL
 QUESTIONS = {
     'uz': [
         "👤 FISH kiriting:", "📆 Tug'ilgan sanangiz (03-04-1999):", "📍 Tug'ilgan joy va aniq manzil?", 
@@ -127,7 +126,7 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
     await callback.message.answer(INFO_TEXTS[lang])
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
     await callback.message.answer(QUESTIONS[lang][0])
     await state.set_state(Anketa.step)
     await callback.answer()
@@ -164,9 +163,10 @@ async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
     if not selected:
         return await callback.answer("Tanlang! / Выберите!", show_alert=True)
     
-    answers = data['answers']
+    answers = data.get('answers', [])
     answers.append(", ".join(selected))
     current_step = data['current_step'] + 1
+    
     await state.update_data(answers=answers, current_step=current_step)
     await callback.message.answer(QUESTIONS[lang][current_step])
     await callback.answer()
@@ -176,14 +176,16 @@ async def process_steps(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang = data['chosen_lang']
     current_step = data['current_step']
-    answers = data['answers']
+    answers = data.get('answers', [])
     
-    answers.append(message.text)
+    if message.text:
+        answers.append(message.text)
+    
     current_step += 1
+    await state.update_data(answers=answers, current_step=current_step)
     
     if current_step < len(QUESTIONS[lang]):
-        await state.update_data(answers=answers, current_step=current_step)
-        if current_step == 14: # Ish tanlash savoli (index 14)
+        if current_step == 14: # Ish tanlash (Inline tugmalar)
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -193,8 +195,7 @@ async def process_steps(message: types.Message, state: FSMContext):
         else:
             await message.answer(QUESTIONS[lang][current_step])
     else:
-        # BARCHA MATNLI SAVOLLAR TUGAGANDA RASM SO'RASH
-        await state.update_data(answers=answers)
+        # Hamma savollar tugadi -> Rasm so'rash
         prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото (3х4 или селфи):"
         await message.answer(prompt)
         await state.set_state(Anketa.photo)
@@ -206,24 +207,24 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
-    # 16 TA SAVOL UCHUN LABELLAR
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     report = f"🔔 **Yangi anketa ({lang})!**\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 **{labels[i]}:** {ans}\n"
     
-    # ADMINGA YUBORISH
-    await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
-    
-    # FOYDALANUVCHIGA TASDIQLASH JAVOBI
-    thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
-    await message.answer(thanks)
-    
-    await state.clear() # Anketa tugadi
+    try:
+        await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
+        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
+        await message.answer(thanks)
+        await state.clear()
+    except Exception as e:
+        logging.error(f"Error sending to admin: {e}")
 
 async def main():
-    await asyncio.gather(start_web_server(), dp.start_polling(bot))
+    # Web serverni Render/Heroku kabi platformalar uchun ishga tushirish
+    asyncio.create_task(start_web_server())
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     try:
