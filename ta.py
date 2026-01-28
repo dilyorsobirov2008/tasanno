@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752654 
+ADMIN_ID = 6339752654 # Bu yerga yangi egasining ID raqamini yozing
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -207,24 +207,21 @@ async def process_photo(message: types.Message, state: FSMContext):
     photo_id = message.photo[-1].file_id
 
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
-    report = f"🔔 **Yangi anketa ({lang})!**\n\n"
+    report = f"🔔 Yangi anketa ({lang})!\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
-            report += f"🔹 **{labels[i]}:** {ans}\n"
+            report += f"🔹 {labels[i]}: {ans}\n"
     
     try:
-        # Admin xabarini yuborish
-        await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
-        
-        # Foydalanuvchiga tasdiqlash xabarini yuborish
-        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi. ✅" if lang == 'uz' else "Спасибо! Ваши данные успешно отправлены админу. ✅"
+        # Markdown muammosini hal qilish uchun parse_mode olib tashlandi
+        await bot.send_photo(ADMIN_ID, photo_id, caption=report)
+        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
         await message.answer(thanks)
-        
-        # Holatni tozalash
         await state.clear()
     except Exception as e:
-        logging.error(f"Error sending to admin: {e}")
-        await message.answer("Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.")
+        logging.error(f"Xatolik: {e}")
+        error_msg = "Xatolik! Admin hali botni faollashtirmagan." if lang == 'uz' else "Ошибка! Админ еще не активировал бота."
+        await message.answer(error_msg)
 
 async def main():
     asyncio.create_task(start_web_server())
