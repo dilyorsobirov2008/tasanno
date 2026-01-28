@@ -185,7 +185,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     await state.update_data(answers=answers, current_step=next_step)
     
     if next_step < len(QUESTIONS[lang]):
-        if next_step == 14: # Ish tanlash (Inline tugmalar bo'lgan bosqich)
+        if next_step == 14: 
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
@@ -213,12 +213,18 @@ async def process_photo(message: types.Message, state: FSMContext):
             report += f"🔹 **{labels[i]}:** {ans}\n"
     
     try:
+        # Admin xabarini yuborish
         await bot.send_photo(ADMIN_ID, photo_id, caption=report, parse_mode="Markdown")
-        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
+        
+        # Foydalanuvchiga tasdiqlash xabarini yuborish
+        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi. ✅" if lang == 'uz' else "Спасибо! Ваши данные успешно отправлены админу. ✅"
         await message.answer(thanks)
+        
+        # Holatni tozalash
         await state.clear()
     except Exception as e:
         logging.error(f"Error sending to admin: {e}")
+        await message.answer("Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.")
 
 async def main():
     asyncio.create_task(start_web_server())
