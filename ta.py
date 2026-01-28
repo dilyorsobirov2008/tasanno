@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752659 
+ADMIN_ID = 6339752654 
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -165,10 +165,10 @@ async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
     
     answers = data.get('answers', [])
     answers.append(", ".join(selected))
-    current_step = data['current_step'] + 1
+    next_step = data['current_step'] + 1
     
-    await state.update_data(answers=answers, current_step=current_step)
-    await callback.message.answer(QUESTIONS[lang][current_step])
+    await state.update_data(answers=answers, current_step=next_step)
+    await callback.message.answer(QUESTIONS[lang][next_step])
     await callback.answer()
 
 @dp.message(Anketa.step)
@@ -181,21 +181,20 @@ async def process_steps(message: types.Message, state: FSMContext):
     if message.text:
         answers.append(message.text)
     
-    current_step += 1
-    await state.update_data(answers=answers, current_step=current_step)
+    next_step = current_step + 1
+    await state.update_data(answers=answers, current_step=next_step)
     
-    if current_step < len(QUESTIONS[lang]):
-        if current_step == 14: # Ish tanlash (Inline tugmalar)
+    if next_step < len(QUESTIONS[lang]):
+        if next_step == 14: # Ish tanlash (Inline tugmalar bo'lgan bosqich)
             builder = InlineKeyboardBuilder()
             for job in JOBS[lang]:
                 builder.button(text=job, callback_data=f"job_{job}")
             builder.button(text="✅ Tasdiqlash / Подтвердить", callback_data="confirm_jobs")
             builder.adjust(2)
-            await message.answer(QUESTIONS[lang][current_step], reply_markup=builder.as_markup())
+            await message.answer(QUESTIONS[lang][next_step], reply_markup=builder.as_markup())
         else:
-            await message.answer(QUESTIONS[lang][current_step])
+            await message.answer(QUESTIONS[lang][next_step])
     else:
-        # Hamma savollar tugadi -> Rasm so'rash
         prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото (3х4 или селфи):"
         await message.answer(prompt)
         await state.set_state(Anketa.photo)
