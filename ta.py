@@ -65,7 +65,7 @@ INFO_TEXTS = {
     'ru': (
         "Здравствуйте 👋\n"
         "Этот бот предназначен для заполнения анкеты ✍️ и трудоустройства в Тасанно!\n"
-        "Здесь Вы можете заполнить свою анкету 📄 и узнать о вакансиях нашей Компании!\n\n"
+        "Здесь Вы можете заполнит свою анкету 📄 и узнать о вакансиях нашей Компании!\n\n"
         "Вопросы анкеты будут следующими:\n"
         "👤: ФИО\n"
         "📆: 03-04-1999\n"
@@ -114,6 +114,7 @@ class Anketa(StatesGroup):
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.button(text="🇺🇿 O'zbekcha", callback_data="l_uz")
     builder.button(text="🇷🇺 Русский", callback_data="l_ru")
@@ -126,7 +127,7 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
     await callback.message.answer(INFO_TEXTS[lang])
-    await asyncio.sleep(2)
+    await asyncio.sleep(1.5)
     await callback.message.answer(QUESTIONS[lang][0])
     await state.set_state(Anketa.step)
     await callback.answer()
@@ -143,7 +144,7 @@ async def job_selection(callback: types.CallbackQuery, state: FSMContext):
     elif len(selected) < 2:
         selected.append(job)
     else:
-        return await callback.answer("Faqat 2 ta tanlash mumkin! / Можно выбрать только 2!", show_alert=True)
+        return await callback.answer("Faqat 2 ta tanlash mumkin!", show_alert=True)
 
     await state.update_data(selected_jobs=selected)
     builder = InlineKeyboardBuilder()
@@ -161,11 +162,11 @@ async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
     selected = data.get('selected_jobs', [])
     lang = data['chosen_lang']
     if not selected:
-        return await callback.answer("Tanlang! / Выберите!", show_alert=True)
+        return await callback.answer("Tanlang!", show_alert=True)
     
     answers = data.get('answers', [])
     answers.append(", ".join(selected))
-    next_step = data['current_step'] + 1
+    next_step = 15 # Keyingi savol - Maosh
     
     await state.update_data(answers=answers, current_step=next_step)
     await callback.message.answer(QUESTIONS[lang][next_step])
@@ -178,6 +179,10 @@ async def process_steps(message: types.Message, state: FSMContext):
     current_step = data['current_step']
     answers = data.get('answers', [])
     
+    # Tugmalar orqali ishlanadigan qadamda matnni rad etish
+    if current_step == 14:
+        return
+
     if message.text:
         answers.append(message.text)
     
@@ -213,18 +218,12 @@ async def process_photo(message: types.Message, state: FSMContext):
             report += f"🔹 {labels[i]}: {ans}\n"
     
     try:
-        # Rasmni va hisobotni adminga yuborish
         await bot.send_photo(chat_id=ADMIN_ID, photo=photo_id, caption=report)
-        
-        thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
-        await message.answer(thanks)
+        await message.answer("Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу.")
         await state.clear()
-        
     except Exception as e:
-        logging.error(f"Xatolik yuz berdi: {e}")
-        # Agar bu yerda xato chiqsa, admin botga /start bosmagan bo'ladi
-        error_msg = "Xatolik! Admin hali botni faollashtirmagan (Admin botga /start bosishi kerak)." if lang == 'uz' else "Ошибка! Админ еще не активировал бота (Админ должен нажать /start)."
-        await message.answer(error_msg)
+        logging.error(f"Xatolik: {e}")
+        await message.answer("Xatolik! Admin botni hali faollashtirmagan (Admin /start bosishi shart).")
 
 async def main():
     asyncio.create_task(start_web_server())
