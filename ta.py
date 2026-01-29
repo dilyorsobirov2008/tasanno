@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752654 # Bu yerga yangi egasining ID raqamini yozing
+ADMIN_ID = 6339752654 # Admin botga /start bosgan bo'lishi shart!
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -213,14 +213,17 @@ async def process_photo(message: types.Message, state: FSMContext):
             report += f"🔹 {labels[i]}: {ans}\n"
     
     try:
-        # Markdown muammosini hal qilish uchun parse_mode olib tashlandi
-        await bot.send_photo(ADMIN_ID, photo_id, caption=report)
+        # Rasmni va hisobotni adminga yuborish
+        await bot.send_photo(chat_id=ADMIN_ID, photo=photo_id, caption=report)
+        
         thanks = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
         await message.answer(thanks)
         await state.clear()
+        
     except Exception as e:
-        logging.error(f"Xatolik: {e}")
-        error_msg = "Xatolik! Admin hali botni faollashtirmagan." if lang == 'uz' else "Ошибка! Админ еще не активировал бота."
+        logging.error(f"Xatolik yuz berdi: {e}")
+        # Agar bu yerda xato chiqsa, admin botga /start bosmagan bo'ladi
+        error_msg = "Xatolik! Admin hali botni faollashtirmagan (Admin botga /start bosishi kerak)." if lang == 'uz' else "Ошибка! Админ еще не активировал бота (Админ должен нажать /start)."
         await message.answer(error_msg)
 
 async def main():
