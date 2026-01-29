@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 606049293 # Admin botga /start bosgan bo'lishi shart!
+ADMIN_ID = 6339752654 # Admin botga /start bosgan bo'lishi shart!
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
