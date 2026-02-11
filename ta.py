@@ -11,7 +11,7 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_ID = 6339752659 # Admin botga /start bosgan bo'lishi shart!
+ADMIN_ID = 6339752654 # Admin botga /start bosgan bo'lishi shart!
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -19,8 +19,8 @@ dp = Dispatcher(storage=MemoryStorage())
 
 # --- ISH BO'LIMLARI TUGMALARI ---
 JOBS = {
-    'uz': ["Ombor boʻlimi", "Sotuvchi", "Undiruvchi", "Shartnoma", "Kassa", "Operator", "Qorovul"],
-    'ru': ["Складской отдел", "Продавец", "Взыскатель", "Контрактный отдел", "Кассир", "Оператор", "Охранник"]
+    'uz': ["Ombor boʻlimi", "Sotuvchi", "Undiruvchi", "Shartnoma", "Kassa", "Operator", "Qorovul", "Arxivarius", "HR"],
+    'ru': ["Складской отдел", "Продавец", "Взыскатель", "Контрактный отдел", "Кассир", "Оператор", "Охранник", "Архивариус", "HR"]
 }
 
 # --- RENDER UCHUN PORT VA WEB SERVER ---
@@ -179,7 +179,6 @@ async def process_steps(message: types.Message, state: FSMContext):
     current_step = data['current_step']
     answers = data.get('answers', [])
     
-    # Tugmalar orqali ishlanadigan qadamda matnni rad etish
     if current_step == 14:
         return
 
