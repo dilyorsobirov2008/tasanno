@@ -110,6 +110,7 @@ QUESTIONS = {
 class Anketa(StatesGroup):
     lang = State()
     branch = State()
+    job_branch = State()
     step = State()
     photo = State()
 
@@ -159,6 +160,40 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
     }
     selected_branch = branch_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_branch=selected_branch)
+    
+    data = await state.get_data()
+    lang = data['chosen_lang']
+    
+    if selected_branch in ["Shahrixon", "Marhamat"]:
+        builder = InlineKeyboardBuilder()
+        builder.button(text="📢 Reklama", callback_data="job_reklama")
+        builder.button(text="📦 Ombor", callback_data="job_ombor")
+        builder.button(text="💳 Shartnoma va kassa", callback_data="job_kassa")
+        builder.button(text="💰 Undiruv", callback_data="job_undiruv")
+        builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
+        builder.adjust(2, 2, 1)
+        
+        await callback.message.answer("💼 Ish yo'nalishini tanlang\n\nQuyidagi lavozimlardan birini tanlang:", reply_markup=builder.as_markup())
+        await state.set_state(Anketa.job_branch)
+        await callback.answer()
+    else:
+        await callback.message.answer(INFO_TEXTS[lang])
+        await asyncio.sleep(1.5)
+        await callback.message.answer(QUESTIONS[lang][0])
+        await state.set_state(Anketa.step)
+        await callback.answer()
+
+@dp.callback_query(F.data.startswith("job_"), Anketa.job_branch)
+async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
+    job_map = {
+        "job_reklama": "Reklama",
+        "job_ombor": "Ombor",
+        "job_kassa": "Shartnoma va kassa",
+        "job_undiruv": "Undiruv",
+        "job_sotuvchi": "Sotuvchi-maslahatchi"
+    }
+    selected_job = job_map.get(callback.data, "Noma'lum")
+    await state.update_data(selected_job_branch=selected_job)
     
     data = await state.get_data()
     lang = data['chosen_lang']
@@ -249,7 +284,12 @@ async def process_photo(message: types.Message, state: FSMContext):
 
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
     selected_branch = data.get('selected_branch', 'Noma\'lum')
-    report = f"🔔 Yangi anketa ({lang})!\n📍 Filial: {selected_branch}\n\n"
+    selected_job_branch = data.get('selected_job_branch', '')
+    
+    report = f"🔔 Yangi anketa ({lang})!\n📍 Filial: {selected_branch}\n"
+    if selected_job_branch:
+        report += f"💼 Ish yo'nalishi: {selected_job_branch}\n"
+    report += "\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 {labels[i]}: {ans}\n"
