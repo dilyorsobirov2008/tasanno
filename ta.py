@@ -141,10 +141,9 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
     
     builder = InlineKeyboardBuilder()
-    builder.button(text="🏢 Shahrixon", callback_data="branch_Shahrixon")
-    builder.button(text="🏢 Marhamat", callback_data="branch_Marhamat")
-    builder.button(text="🏢 Asaka", callback_data="branch_Asaka")
-    builder.button(text="🏢 Bozorcha", callback_data="branch_Bozorcha")
+    builder.button(text="🏢 Shahrixon", callback_data="branch_shahrixon")
+    builder.button(text="🏢 Marhamat", callback_data="branch_marhamat")
+    builder.button(text="🏢 Asaka", callback_data="branch_asaka")
     builder.adjust(2)
     
     await callback.message.answer("📍 Filialni tanlang\n\nQaysi filial uchun anketa to'ldirmoqchisiz?", reply_markup=builder.as_markup())
@@ -153,7 +152,12 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query(F.data.startswith("branch_"), Anketa.branch)
 async def set_branch(callback: types.CallbackQuery, state: FSMContext):
-    selected_branch = callback.data.split("_")[1]
+    branch_map = {
+        "branch_shahrixon": "Shahrixon",
+        "branch_marhamat": "Marhamat",
+        "branch_asaka": "Asaka"
+    }
+    selected_branch = branch_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_branch=selected_branch)
     
     data = await state.get_data()
