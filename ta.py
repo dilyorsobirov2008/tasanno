@@ -145,6 +145,7 @@ async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     builder.button(text="🏢 Shahrixon", callback_data="branch_shahrixon")
     builder.button(text="🏢 Marhamat", callback_data="branch_marhamat")
     builder.button(text="🏢 Asaka", callback_data="branch_asaka")
+    builder.button(text="🏢 Bozorcha", callback_data="branch_bozorcha")
     builder.adjust(2)
     
     await callback.message.answer("📍 Filialni tanlang\n\nQaysi filial uchun anketa to'ldirmoqchisiz?", reply_markup=builder.as_markup())
@@ -156,24 +157,29 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
     branch_map = {
         "branch_shahrixon": "Shahrixon",
         "branch_marhamat": "Marhamat",
-        "branch_asaka": "Asaka"
+        "branch_asaka": "Asaka",
+        "branch_bozorcha": "Bozorcha"
     }
     selected_branch = branch_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_branch=selected_branch)
     
     builder = InlineKeyboardBuilder()
-    builder.button(text="📢 Reklama", callback_data="job_reklama")
-    builder.button(text="📦 Ombor", callback_data="job_ombor")
-    builder.button(text="💳 Shartnoma va kassa", callback_data="job_kassa")
-    builder.button(text="💰 Undiruv", callback_data="job_undiruv")
-    builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
-    
-    if selected_branch == "Asaka":
-        builder.button(text="👨💼 HR", callback_data="job_hr")
-        builder.button(text="🎧 Call Center", callback_data="job_call_center")
-        builder.adjust(2, 2, 2, 1)
+    if selected_branch == "Bozorcha":
+        builder.button(text="💵 Kassir", callback_data="job_kassir")
+        builder.adjust(1)
     else:
-        builder.adjust(2, 2, 1)
+        builder.button(text="📢 Reklama", callback_data="job_reklama")
+        builder.button(text="📦 Ombor", callback_data="job_ombor")
+        builder.button(text="💳 Shartnoma va kassa", callback_data="job_kassa")
+        builder.button(text="💰 Undiruv", callback_data="job_undiruv")
+        builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
+        
+        if selected_branch == "Asaka":
+            builder.button(text="👨💼 HR", callback_data="job_hr")
+            builder.button(text="🎧 Call Center", callback_data="job_call_center")
+            builder.adjust(2, 2, 2, 1)
+        else:
+            builder.adjust(2, 2, 1)
     
     await callback.message.answer("💼 Ish yo'nalishini tanlang\n\nQuyidagi lavozimlardan birini tanlang:", reply_markup=builder.as_markup())
     await state.set_state(Anketa.job_branch)
@@ -188,7 +194,8 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
         "job_undiruv": "Undiruv",
         "job_sotuvchi": "Sotuvchi-maslahatchi",
         "job_hr": "HR",
-        "job_call_center": "Call Center"
+        "job_call_center": "Call Center",
+        "job_kassir": "Kassir"
     }
     selected_job = job_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_job_branch=selected_job)
