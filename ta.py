@@ -19,8 +19,26 @@ dp = Dispatcher(storage=MemoryStorage())
 
 # --- ISH BO'LIMLARI TUGMALARI ---
 JOBS = {
-    'uz': ["Ombor boʻlimi", "Sotuvchi", "Undiruvchi", "Shartnoma", "Kassa", "Operator", "Qorovul", "Arxivarius", "HR"],
-    'ru': ["Складской отдел", "Продавец", "Взыскатель", "Контрактный отдел", "Кассир", "Оператор", "Охранник", "Архивариус", "HR"]
+    "uz": [
+        "Sotuvchi",
+        "Reklama",
+        "Ombor",
+        "Call-center",
+        "Kassa",
+        "Undiruv",
+        "HR",
+        "Kassir"
+    ],
+    "ru": [
+        "Продавец",
+        "Реклама",
+        "Склад",
+        "Call-center",
+        "Касса",
+        "Взыскание",
+        "HR",
+        "Кассир"
+    ]
 }
 
 # --- RENDER UCHUN PORT VA WEB SERVER ---
@@ -43,69 +61,17 @@ INFO_TEXTS = {
         "Salom 👋\n"
         "Ushbu bot Tasannoda anketalarni to'ldirish va mehnat uchun mo'ljallangan!\n"
         "Bu yerda siz o'zingizning arizangizni 📄 to'ldirishingiz ✍️ va "
-        "bizning kompaniyamizdagi mavjud bo'sh ish o'rinlari haqida bilib olishingiz mumkin!\n\n"
-        "Anketa savollari quyidagicha bo'ladi:\n"
-        "👤: FISH\n"
-        "📆: 03-04-1999\n"
-        "📍: Tug'ilgan joy va aniq manzil?\n"
-        "👨‍👩‍👧‍👦: Turmush qurganmisiz?\n"
-        "💼: Qanday sohada o'qigansiz?\n"
-        "📞: +998xxxxxxxxx telefon raqam?\n"
-        "🧳: Ta'lim shakli?\n"
-        "🎓: Ma'lumotingiz (Oliy yoki o'rta maxsus)\n"
-        "🏫: Qaysi universitetda o'qigansiz yoki o'qiysiz\n"
-        "🧑‍💻: Qanday dasturlarda ishlay olasiz?\n"
-        "🇷🇺🇺🇿🇺🇸: Qaysi tillarni bilasiz?\n"
-        "🔍📍: Tuman?\n"
-        "🏢: Oxirgi ishlagan joyingiz?\n"
-        "🧰: Qanday ishda ishlashni xohlaysiz?\n"
-        "💰: Oylik maoshni yozing (siz xohlagan)\n\n"
-        "⏳ **Tayyor bo'ling, so'rovnomani boshlaymiz...**"
+        "bizning kompaniyimizdagi mavjud bo'sh ish o'rinlari haqida bilib olishingiz mumkin!\n\n"
+        "⏳ **Tayyor bo'ling, so'rovnoma boshlanadi...**"
     ),
     'ru': (
         "Здравствуйте 👋\n"
         "Этот бот предназначен для заполнения анкеты ✍️ и трудоустройства в Тасанно!\n"
-        "Здесь Вы можете заполнит свою анкету 📄 и узнать о вакансиях нашей Компании!\n\n"
-        "Вопросы анкеты будут следующими:\n"
-        "👤: ФИО\n"
-        "📆: 03-04-1999\n"
-        "📍: Место рождения и точный адрес?\n"
-        "👨‍👩‍👧‍👦: Вы замужем/женаты?\n"
-        "💼: В какой сфере Вы учились?\n"
-        "📞: +998xxxxxxxxx номер телефона?\n"
-        "🧳: Форма обучения?\n"
-        "🎓: Ваше образование (Высшее или средне-специальное)\n"
-        "🏫: В каком университете Вы учились или учитесь?\n"
-        "🧑‍💻: В каких программах Вы умеете работать?\n"
-        "🇷🇺🇺🇿🇺🇸: Какие языки Вы знаете?\n"
-        "🔍📍: Район?\n"
-        "🏢: Последнее место работы?\n"
-        "🧰: На какой должности Вы хотите работать?\n"
-        "💰: Напишите желаемую зарплату\n\n"
-        "⏳ **Будьте готовы, начинаем опрос...**"
+        "Здесь Вы можете заполнить свою анкеты 📄 и узнать о вакансиях нашей Компании!\n\n"
+        "⏳ **Будьте готовы, опрос начинается...**"
     )
 }
 
-QUESTIONS = {
-    'uz': [
-        "👤 FISH kiriting:", "📆 Tug'ilgan sanangiz (03-04-1999):", "📍 Tug'ilgan joy va aniq manzil?", 
-        "👨‍👩‍👧‍👦 Turmush qurganmisiz?", "💼 Qanday sohada o'qigansiz?", "📞 Telefon raqamingiz (+998...):", 
-        "📞 Qo'shimcha telefon raqami:", "🧳 Ta'lim shakli?", "🎓 Ma'lumotingiz (Oliy yoki o'rta maxsus):", 
-        "🏫 Qaysi universitetda o'qigansiz yoki o'qiysiz?", "🧑‍💻 Qanday dasturlarda ishlay olasiz?", 
-        "🇷🇺🇺🇿🇺🇸 Qaysi tillarni bilasiz?", "🔍📍 Tuman?", "🏢 Oxirgi ishlagan joyingiz:", 
-        "🧰 Qaysi sohalarda ishlamoqchisiz? (1-2 ta tanlang va 'Tasdiqlash'ni bosing):", 
-        "💰 Oylik maoshni yozing (siz xohlagan):"
-    ],
-    'ru': [
-        "👤 Введите ваше ФИО:", "📆 Введите дату рождения (03-04-1999):", "📍 Место рождения и ваш точный адрес?", 
-        "👨‍👩‍👧‍👦 Вы замужем или женаты?", "💼 В какой сфере Вы учились?", "📞 Ваш номер телефона (+998...):", 
-        "📞 Дополнительный номер телефона:", "🧳 Ваша форма обучения?", "🎓 Ваше образование (Высшее или средне-специальное):", 
-        "🏫 В каком университете Вы учились или учитесь?", "🧑‍💻 В каких программах Вы умеете работать?", 
-        "🇷🇺🇺🇿🇺🇸 Какие языки Вы знаете?", "🔍📍 Ваш район?", "🏢 Последнее место работы:", 
-        "🧰 В каких отделах хотите работать? (Выберите 1-2 и нажмите 'Подтвердить'):", 
-        "💰 Напишите желаемую зарплату:"
-    ]
-}
 
 SOTUVCHI_QUESTIONS = [
     "F.I.Sh.", "Tug‘ilgan sana (kun/oy/yil)", "Yashash manzilingiz", "Telefon raqamingiz", 
@@ -332,6 +298,18 @@ KASSIR_QUESTIONS = [
     "Navbatni imkon qadar tez va sifatli boshqarish uchun qanday choralar ko'rasiz?"
 ]
 
+# --- YO‘NALISH BO‘YICHA SAVOLLAR ---
+QUESTIONS_BY_ROLE = {
+    "sotuvchi": SOTUVCHI_QUESTIONS,
+    "reklama": REKLAMA_QUESTIONS,
+    "ombor": OMBOR_QUESTIONS,
+    "call_center": CALL_CENTER_QUESTIONS,
+    "kassa": KASSA_QUESTIONS,
+    "undiruv": UNDIRUV_QUESTIONS,
+    "hr": HR_QUESTIONS,
+    "kassir": KASSIR_QUESTIONS
+}
+
 class Anketa(StatesGroup):
     lang = State()
     branch = State()
@@ -417,25 +395,30 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
 @dp.callback_query(F.data.startswith("job_"), Anketa.job_branch)
 async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
     job_map = {
-        "job_reklama": "Reklama",
-        "job_ombor": "Ombor",
-        "job_kassa": "Shartnoma va kassa",
-        "job_undiruv": "Undiruv",
-        "job_sotuvchi": "Sotuvchi-maslahatchi",
-        "job_hr": "HR",
-        "job_call_center": "Call Center",
-        "job_kassir": "Kassir"
+        "job_reklama": "reklama",
+        "job_ombor": "ombor",
+        "job_kassa": "kassa",
+        "job_undiruv": "undiruv",
+        "job_sotuvchi": "sotuvchi",
+        "job_hr": "hr",
+        "job_call_center": "call_center",
+        "job_kassir": "kassir"
     }
-    selected_job = job_map.get(callback.data, "Noma'lum")
-    is_sotuvchi = selected_job == "Sotuvchi-maslahatchi"
-    is_reklama = selected_job == "Reklama"
-    is_ombor = selected_job == "Ombor"
-    is_call_center = selected_job == "Call Center"
-    is_kassa = selected_job == "Shartnoma va kassa"
-    is_undiruv = selected_job == "Undiruv"
-    is_hr = selected_job == "HR"
-    is_kassir = selected_job == "Kassir"
-    await state.update_data(selected_job_branch=selected_job, is_sotuvchi=is_sotuvchi, is_reklama=is_reklama, is_ombor=is_ombor, is_call_center=is_call_center, is_kassa=is_kassa, is_undiruv=is_undiruv, is_hr=is_hr, is_kassir=is_kassir)
+    selected_role = job_map.get(callback.data, "noma'lum")
+    
+    # Lavozim nomini chiroyli ko'rinishda saqlash (report uchun)
+    role_names = {
+        "reklama": "Reklama bo'limi",
+        "ombor": "Ombor bo'limi",
+        "kassa": "Kassa",
+        "undiruv": "Undiruv",
+        "sotuvchi": "Sotuvchi",
+        "hr": "HR",
+        "call_center": "Call-center",
+        "kassir": "Kassir"
+    }
+    
+    await state.update_data(selected_role=selected_role, selected_job_name=role_names.get(selected_role, "Noma'lum"))
     
     data = await state.get_data()
     lang = data['chosen_lang']
@@ -443,63 +426,18 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(INFO_TEXTS[lang])
     await asyncio.sleep(1.5)
     
-    if is_sotuvchi:
-        q_list = SOTUVCHI_QUESTIONS
-    elif is_reklama:
-        q_list = REKLAMA_QUESTIONS
-    elif is_ombor:
-        q_list = OMBOR_QUESTIONS
-    elif is_call_center:
-        q_list = CALL_CENTER_QUESTIONS
-    elif is_kassa:
-        q_list = KASSA_QUESTIONS
-    elif is_undiruv:
-        q_list = UNDIRUV_QUESTIONS
-    else:
-        q_list = QUESTIONS[lang]
+    q_list = QUESTIONS_BY_ROLE.get(selected_role, [])
+    if not q_list:
+        return await callback.answer("Tanlangan yo'nalish uchun savollar topilmadi.", show_alert=True)
         
     await callback.message.answer(q_list[0])
+    await state.update_data(current_step=0, answers=[]) # Savollarni boshidan boshlash
     await state.set_state(Anketa.step)
-    await callback.answer()
-
-@dp.callback_query(F.data.startswith("job_"), Anketa.step)
-async def job_selection(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    selected = data.get('selected_jobs', [])
-    job = callback.data.replace("job_", "")
-    lang = data['chosen_lang']
-
-    if job in selected:
-        selected.remove(job)
-    elif len(selected) < 2:
-        selected.append(job)
-    else:
-        return await callback.answer("Faqat 2 ta tanlash mumkin!", show_alert=True)
-
-    await state.update_data(selected_jobs=selected)
-    builder = InlineKeyboardBuilder()
-    for j in JOBS[lang]:
-        text = f"✅ {j}" if j in selected else j
-        builder.button(text=text, callback_data=f"job_{j}")
-    builder.button(text="✅ Tasdiqlash / Подтвердить", callback_data="confirm_jobs")
-    builder.adjust(2)
-    await callback.message.edit_reply_markup(reply_markup=builder.as_markup())
     await callback.answer()
 
 @dp.callback_query(F.data == "confirm_jobs", Anketa.step)
 async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    selected = data.get('selected_jobs', [])
-    lang = data['chosen_lang']
-    if not selected:
-        return await callback.answer("Tanlang!", show_alert=True)
-    
-    answers = data.get('answers', [])
-    answers.append(", ".join(selected))
-    next_step = 15 # Keyingi savol - Maosh
-    
-    await state.update_data(answers=answers, current_step=next_step)
-    await callback.message.answer(QUESTIONS[lang][next_step])
+    # Ushbu funksiya endi ishlatilmaydi, lekin xavfsizlik uchun qoldirildi.
     await callback.answer()
 
 @dp.message(Anketa.step)
@@ -508,35 +446,10 @@ async def process_steps(message: types.Message, state: FSMContext):
     lang = data['chosen_lang']
     current_step = data['current_step']
     answers = data.get('answers', [])
-    is_sotuvchi = data.get('is_sotuvchi', False)
-    is_reklama = data.get('is_reklama', False)
-    is_ombor = data.get('is_ombor', False)
-    is_call_center = data.get('is_call_center', False)
-    is_kassa = data.get('is_kassa', False)
-    is_undiruv = data.get('is_undiruv', False)
-    is_hr = data.get('is_hr', False)
-    is_kassir = data.get('is_kassir', False)
+    selected_role = data.get('selected_role')
     
-    if is_sotuvchi:
-        q_list = SOTUVCHI_QUESTIONS
-    elif is_reklama:
-        q_list = REKLAMA_QUESTIONS
-    elif is_ombor:
-        q_list = OMBOR_QUESTIONS
-    elif is_call_center:
-        q_list = CALL_CENTER_QUESTIONS
-    elif is_kassa:
-        q_list = KASSA_QUESTIONS
-    elif is_undiruv:
-        q_list = UNDIRUV_QUESTIONS
-    elif is_hr:
-        q_list = HR_QUESTIONS
-    elif is_kassir:
-        q_list = KASSIR_QUESTIONS
-    else:
-        q_list = QUESTIONS[lang]
-    
-    if not (is_sotuvchi or is_reklama or is_ombor or is_call_center or is_kassa or is_undiruv or is_hr) and current_step == 14:
+    q_list = QUESTIONS_BY_ROLE.get(selected_role, [])
+    if not q_list:
         return
 
     if message.text:
@@ -546,15 +459,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     await state.update_data(answers=answers, current_step=next_step)
     
     if next_step < len(q_list):
-        if not (is_sotuvchi or is_reklama or is_ombor or is_call_center or is_kassa or is_undiruv or is_hr or is_kassir) and next_step == 14: 
-            builder = InlineKeyboardBuilder()
-            for job in JOBS[lang]:
-                builder.button(text=job, callback_data=f"job_{job}")
-            builder.button(text="✅ Tasdiqlash / Подтвердить", callback_data="confirm_jobs")
-            builder.adjust(2)
-            await message.answer(q_list[next_step], reply_markup=builder.as_markup())
-        else:
-            await message.answer(q_list[next_step])
+        await message.answer(q_list[next_step])
     else:
         prompt = "Iltimos, rasmingizni yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте ваше фото (3х4 или селфи):"
         await message.answer(prompt)
@@ -567,39 +472,12 @@ async def process_photo(message: types.Message, state: FSMContext):
     answers = data['answers']
     photo_id = message.photo[-1].file_id
 
-    labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
-    is_sotuvchi = data.get('is_sotuvchi', False)
-    is_reklama = data.get('is_reklama', False)
-    is_ombor = data.get('is_ombor', False)
-    is_call_center = data.get('is_call_center', False)
-    is_kassa = data.get('is_kassa', False)
-    is_undiruv = data.get('is_undiruv', False)
-    is_hr = data.get('is_hr', False)
-    is_kassir = data.get('is_kassir', False)
-    if is_sotuvchi:
-        labels = SOTUVCHI_QUESTIONS
-    elif is_reklama:
-        labels = REKLAMA_QUESTIONS
-    elif is_ombor:
-        labels = OMBOR_QUESTIONS
-    elif is_call_center:
-        labels = CALL_CENTER_QUESTIONS
-    elif is_kassa:
-        labels = KASSA_QUESTIONS
-    elif is_undiruv:
-        labels = UNDIRUV_QUESTIONS
-    elif is_hr:
-        labels = HR_QUESTIONS
-    elif is_kassir:
-        labels = KASSIR_QUESTIONS
-
+    labels = QUESTIONS_BY_ROLE.get(data.get('selected_role'), [])
     selected_branch = data.get('selected_branch', 'Noma\'lum')
-    selected_job_branch = data.get('selected_job_branch', '')
+    selected_job_name = data.get('selected_job_name', 'Noma\'lum')
     
     report = f"🔔 Yangi anketa ({lang})!\n📍 Filial: {selected_branch}\n"
-    if selected_job_branch:
-        report += f"💼 Ish yo'nalishi: {selected_job_branch}\n"
-    report += "\n"
+    report += f"💼 Ish yo'nalishi: {selected_job_name}\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 {labels[i]}: {ans}\n"
