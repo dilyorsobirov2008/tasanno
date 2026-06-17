@@ -161,27 +161,23 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
     selected_branch = branch_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_branch=selected_branch)
     
-    data = await state.get_data()
-    lang = data['chosen_lang']
+    builder = InlineKeyboardBuilder()
+    builder.button(text="📢 Reklama", callback_data="job_reklama")
+    builder.button(text="📦 Ombor", callback_data="job_ombor")
+    builder.button(text="💳 Shartnoma va kassa", callback_data="job_kassa")
+    builder.button(text="💰 Undiruv", callback_data="job_undiruv")
+    builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
     
-    if selected_branch in ["Shahrixon", "Marhamat"]:
-        builder = InlineKeyboardBuilder()
-        builder.button(text="📢 Reklama", callback_data="job_reklama")
-        builder.button(text="📦 Ombor", callback_data="job_ombor")
-        builder.button(text="💳 Shartnoma va kassa", callback_data="job_kassa")
-        builder.button(text="💰 Undiruv", callback_data="job_undiruv")
-        builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
-        builder.adjust(2, 2, 1)
-        
-        await callback.message.answer("💼 Ish yo'nalishini tanlang\n\nQuyidagi lavozimlardan birini tanlang:", reply_markup=builder.as_markup())
-        await state.set_state(Anketa.job_branch)
-        await callback.answer()
+    if selected_branch == "Asaka":
+        builder.button(text="👨💼 HR", callback_data="job_hr")
+        builder.button(text="🎧 Call Center", callback_data="job_call_center")
+        builder.adjust(2, 2, 2, 1)
     else:
-        await callback.message.answer(INFO_TEXTS[lang])
-        await asyncio.sleep(1.5)
-        await callback.message.answer(QUESTIONS[lang][0])
-        await state.set_state(Anketa.step)
-        await callback.answer()
+        builder.adjust(2, 2, 1)
+    
+    await callback.message.answer("💼 Ish yo'nalishini tanlang\n\nQuyidagi lavozimlardan birini tanlang:", reply_markup=builder.as_markup())
+    await state.set_state(Anketa.job_branch)
+    await callback.answer()
 
 @dp.callback_query(F.data.startswith("job_"), Anketa.job_branch)
 async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
@@ -190,7 +186,9 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
         "job_ombor": "Ombor",
         "job_kassa": "Shartnoma va kassa",
         "job_undiruv": "Undiruv",
-        "job_sotuvchi": "Sotuvchi-maslahatchi"
+        "job_sotuvchi": "Sotuvchi-maslahatchi",
+        "job_hr": "HR",
+        "job_call_center": "Call Center"
     }
     selected_job = job_map.get(callback.data, "Noma'lum")
     await state.update_data(selected_job_branch=selected_job)
