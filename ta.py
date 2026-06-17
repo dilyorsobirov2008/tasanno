@@ -109,6 +109,7 @@ QUESTIONS = {
 
 class Anketa(StatesGroup):
     lang = State()
+    branch = State()
     step = State()
     photo = State()
 
@@ -138,6 +139,26 @@ async def cmd_start(message: types.Message, state: FSMContext):
 async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
+    
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🏢 Shahrixon", callback_data="branch_Shahrixon")
+    builder.button(text="🏢 Marhamat", callback_data="branch_Marhamat")
+    builder.button(text="🏢 Asaka", callback_data="branch_Asaka")
+    builder.button(text="🏢 Bozorcha", callback_data="branch_Bozorcha")
+    builder.adjust(2)
+    
+    await callback.message.answer("📍 Filialni tanlang\n\nQaysi filial uchun anketa to'ldirmoqchisiz?", reply_markup=builder.as_markup())
+    await state.set_state(Anketa.branch)
+    await callback.answer()
+
+@dp.callback_query(F.data.startswith("branch_"), Anketa.branch)
+async def set_branch(callback: types.CallbackQuery, state: FSMContext):
+    selected_branch = callback.data.split("_")[1]
+    await state.update_data(selected_branch=selected_branch)
+    
+    data = await state.get_data()
+    lang = data['chosen_lang']
+    
     await callback.message.answer(INFO_TEXTS[lang])
     await asyncio.sleep(1.5)
     await callback.message.answer(QUESTIONS[lang][0])
@@ -223,7 +244,8 @@ async def process_photo(message: types.Message, state: FSMContext):
     photo_id = message.photo[-1].file_id
 
     labels = ["FISH", "Sana", "Manzil", "Oilaviy", "Soha", "Tel 1", "Tel 2", "Ta'lim", "Ma'lumot", "O'qish", "Dastur", "Til", "Tuman", "Oxirgi ish", "Ish", "Maosh"]
-    report = f"🔔 Yangi anketa ({lang})!\n\n"
+    selected_branch = data.get('selected_branch', 'Noma\'lum')
+    report = f"🔔 Yangi anketa ({lang})!\n📍 Filial: {selected_branch}\n\n"
     for i, ans in enumerate(answers):
         if i < len(labels):
             report += f"🔹 {labels[i]}: {ans}\n"
