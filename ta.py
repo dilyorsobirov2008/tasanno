@@ -117,13 +117,15 @@ async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     
     intro_text = (
-        "TASANNO SAVDO MARKAZI\n\n"
+        "🏢 TASANNO SAVDO MARKAZI\n\n"
         "“Tasanno” savdo markazi o‘z faoliyatini 2023-yil 15-iyun sanasida boshlagan bo‘lib, bugungi kunga qadar 60 dan ziyod fuqarolarni doimiy ish o‘rinlari bilan ta’minlab kelmoqda.\n\n"
         "Savdo markazining rivojlanishi natijasida filiallar tarmog‘i ham kengayib bormoqda. Jumladan, Marhamat filiali 2024-yil 2-mart sanasida ish faoliyatini boshlagan bo‘lib, hozirgi kunda 20 dan ortiq xodimlar faoliyat yuritmoqda.\n\n"
         "Shuningdek, Shahrixon filiali 2025-yil 25-may sanasida o‘z ishini boshlagan va qisqa vaqt ichida 20 dan ortiq xodimlarni ish bilan ta’minlashga erishgan.\n\n"
         "Bugungi kunda “Tasanno” savdo markazi mijozlarga barcha turdagi maishiy texnikalar, qurilish mollari, zamonaviy mebellar hamda sport mahsulotlarini keng assortimentda taklif etib kelmoqda. Sifatli mahsulotlar, qulay narxlar va mijozlar ehtiyojini birinchi o‘ringa qo‘ygan xizmat ko‘rsatish tamoyili savdo markazining asosiy ustuvor yo‘nalishlaridan hisoblanadi."
     )
     await message.answer(intro_text)
+    
+    await asyncio.sleep(3)
 
     builder = InlineKeyboardBuilder()
     builder.button(text="🇺🇿 O'zbekcha", callback_data="l_uz")
