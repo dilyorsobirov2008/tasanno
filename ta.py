@@ -260,7 +260,7 @@ KASSIR_QUESTIONS = [
     "Kassa apparati yoki dastur ishlamay qolsa, qanday harakat qilasiz?",
     "Hamkasbingiz kassadan pul olayotganini yoki qoidabuzarlik qilayotganini ko‘rib qolsangiz, nima qilasiz?",
     "Ish davomida charchoq yoki stressni qanday boshqarasiz?",
-    "Bir mijoz၏ mahsulotlari hisoblanayotgan paytda boshqa mijoz sizdan yordam so‘radi. Qanday yo‘l tutasiz?",
+    "Bir mijoz mahsulotlari hisoblanayotgan paytda boshqa mijoz sizdan yordam so‘radi. Qanday yo‘l tutasiz?",
     "Siz uchun ishda nima muhimroq: tezlikmi yoki aniqlik? Nima uchun?",
     "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha ko‘tarilishni maqsad qilgansiz?",
     "Ushbu ish orqali hayotingizdagi qaysi moliyaviy maqsadlaringizga erishmoqchisiz?",
@@ -273,16 +273,87 @@ KASSIR_QUESTIONS = [
     "Navbatni imkon qadar tez va sifatli boshqarish uchun qanday choralar ko'raxasiz?"
 ]
 
+BOZORCHA_COMMON_QUESTIONS = [
+    "F.I.Sh.", "Tug‘ilgan sana (kun/oy/yil)", "Yashash manzili", "Telefon raqami", 
+    "Oilaviy holati", "Ma’lumoti (oliy, o‘rta maxsus, o‘rta)", 
+    "Qo‘shimcha sertifikat va diplomlari", "Oxirgi ish joyingiz (korxona nomi, lavozim, ketish sababi)", 
+    "Avvalgi ish joyingizdan tavsiyanoma bera oladigan shaxs (F.I.Sh., lavozimi, telefon raqami)"
+]
+
+BOZORCHA_OMBOR_QUESTIONS = BOZORCHA_COMMON_QUESTIONS + [
+    "Ombor sohasida qancha vaqt ishlagansiz?",
+    "Eng katta yutug'ingiz qanday bo'lgan?",
+    "Ombor xodimi uchun muhim 3 ta sifat?",
+    "Tovar miqdori mos kelmasa nima qilasiz?",
+    "Omborda mahsulotlar tartibini qanday saqlaysiz?",
+    "Nima uchun aynan ombor bo'limini tanladingiz?",
+    "Bozorcha haqida nimalarni bilasiz?",
+    "Inventarizatsiya paytida kamomad aniqlansa nima qilasiz?",
+    "Mahsulot shikastlanganini aniqlasangiz nima qilasiz?",
+    "Siz uchun ishda nima muhimroq: tezlikmi yoki aniqlik?",
+    "Sizni jamoamizga taklif qilishimiz uchun eng kuchli 3 ta jihatingiz?"
+]
+
+BOZORCHA_SOTUVCHI_QUESTIONS = BOZORCHA_COMMON_QUESTIONS + [
+    "Sotuv sohasida qancha vaqt ishlagansiz?",
+    "Eng katta yutug'ingiz qanday bo'lgan?",
+    "Sotuvchi uchun muhim 3 ta sifat?",
+    "Mijoz e'tiroz bildirganda nima qilasiz?",
+    "Mijozga biror narsani afzalligini qanday tushuntirasiz?",
+    "Nima uchun aynan sotuvchi bo'limini tanladingiz?",
+    "Bozorcha haqida nimalarni bilasiz?",
+    "Sotuv rejasini qanday bajarasiz?",
+    "Qimmat mahsulotni sotish siri nimada?",
+    "Siz uchun ishda nima muhimroq: mijozmi yoki sotuv?",
+    "Sizni jamoamizga taklif qilishimiz uchun eng kuchli 3 ta jihatingiz?"
+]
+
+BOZORCHA_QOROVUL_QUESTIONS = BOZORCHA_COMMON_QUESTIONS + [
+    "Qo'riqlash yoki xavfsizlik sohasida qancha vaqt ishlagansiz?",
+    "Qo'riqlovchi uchun muhim 3 ta sifat?",
+    "Shubhali shaxsni ko'rib qolsangiz nima qilasiz?",
+    "O'g'rilik sodir bo'lganda birinchi harakatingiz?",
+    "Kechki smenada ishlashga tayyormisiz?",
+    "Jismoniy tayyorgarligingiz qanday?",
+    "Bozorcha haqida nimalarni bilasiz?",
+    "Xavfsizlik tizimlari (kamera, signalizatsiya) bilan ishlaganmisiz?",
+    "Ziddiyatli vaziyatlarda (mijoz bilan tortishuv) o'zingizni qanday tutasiz?",
+    "Nima uchun aynan qo'riqlash xizmatini tanladingiz?",
+    "Sizni jamoamizga taklif qilishimiz uchun eng kuchli 3 ta jihatingiz?"
+]
+
+BOZORCHA_KASSIR_QUESTIONS = BOZORCHA_COMMON_QUESTIONS + [
+    "Kassir yoki mijozlarga xizmat ko‘rsatish sohasida qancha vaqt ishlagansiz?",
+    "Kassir uchun eng muhim 3 ta sifat?",
+    "Kassa yopilganda kamomad aniqlansa nima qilasiz?",
+    "Bank kartasi orqali to‘lov o‘tmay qolsa nima qilasiz?",
+    "Qaytim puli haqida e'tiroz bo'lsa vaziyatni qanday hal qilasiz?",
+    "Bozorcha Supermarketi haqida nimalarni bilasiz?",
+    "Navbatlar ko'payib ketganda ishingizni qanday tashkil qilasiz?",
+    "Terminal va naqd pul bilan ishlashda nimalarga e'tibor berasiz?",
+    "Kassa dasturi ishlamay qolsa nima qilasiz?",
+    "Siz uchun ishda nima muhimroq: tezlikmi yoki aniqlik?",
+    "Sizni jamoamizga taklif qilishimiz uchun eng kuchli 3 ta jihatingiz?"
+]
+
 # --- YO‘NALISH BO‘YICHA SAVOLLAR ---
-QUESTIONS_BY_ROLE = {
-    "sotuvchi": SOTUVCHI_QUESTIONS,
-    "reklama": REKLAMA_QUESTIONS,
-    "ombor": OMBOR_QUESTIONS,
-    "call_center": CALL_CENTER_QUESTIONS,
-    "kassa": KASSA_QUESTIONS,
-    "undiruv": UNDIRUV_QUESTIONS,
-    "hr": HR_QUESTIONS,
-    "kassir": KASSIR_QUESTIONS
+QUESTIONS_BY_BRANCH = {
+    "tasanno": {
+        "sotuvchi": SOTUVCHI_QUESTIONS,
+        "ombor": OMBOR_QUESTIONS,
+        "call_center": CALL_CENTER_QUESTIONS,
+        "kassa": KASSA_QUESTIONS,
+        "undiruv": UNDIRUV_QUESTIONS,
+        "hr": HR_QUESTIONS,
+        "reklama": REKLAMA_QUESTIONS,
+        "kassir": KASSIR_QUESTIONS,
+    },
+    "bozorcha": {
+        "ombor": BOZORCHA_OMBOR_QUESTIONS,
+        "sotuvchi": BOZORCHA_SOTUVCHI_QUESTIONS,
+        "qorovul": BOZORCHA_QOROVUL_QUESTIONS,
+        "kassir": BOZORCHA_KASSIR_QUESTIONS,
+    }
 }
 
 class Anketa(StatesGroup):
@@ -339,15 +410,27 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
         "branch_shahrixon": "Shahrixon",
         "branch_marhamat": "Marhamat",
         "branch_asaka": "Asaka",
-        "branch_bozorcha": "Bozorcha"
+        "branch_bozorcha": "Bozorcha Supermarketi"
     }
-    selected_branch = branch_map.get(callback.data, "Noma'lum")
-    await state.update_data(selected_branch=selected_branch)
+    
+    selected_branch_id = callback.data
+    selected_branch_name = branch_map.get(selected_branch_id, "Noma'lum")
+    
+    # Filial guruhini aniqlash (Bozorcha yoki Tasanno)
+    branch_group = "bozorcha" if selected_branch_id == "branch_bozorcha" else "tasanno"
+    
+    await state.update_data(
+        selected_branch=selected_branch_name,
+        branch_group=branch_group
+    )
     
     builder = InlineKeyboardBuilder()
-    if selected_branch == "Bozorcha":
+    if branch_group == "bozorcha":
+        builder.button(text="📦 Ombor bo'limi", callback_data="job_ombor")
+        builder.button(text="👨💼 Sotuvchi", callback_data="job_sotuvchi")
+        builder.button(text="🛡 Qo'riqlash xizmati", callback_data="job_qorovul")
         builder.button(text="💵 Kassir", callback_data="job_kassir")
-        builder.adjust(1)
+        builder.adjust(2)
     else:
         builder.button(text="📢 Reklama", callback_data="job_reklama")
         builder.button(text="📦 Ombor", callback_data="job_ombor")
@@ -355,7 +438,7 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
         builder.button(text="💰 Undiruv", callback_data="job_undiruv")
         builder.button(text="👨💼 Sotuvchi-maslahatchi", callback_data="job_sotuvchi")
         
-        if selected_branch == "Asaka":
+        if selected_branch_name == "Asaka":
             builder.button(text="👨💼 HR", callback_data="job_hr")
             builder.button(text="🎧 Call Center", callback_data="job_call_center")
             builder.adjust(2, 2, 2, 1)
@@ -376,7 +459,8 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
         "job_sotuvchi": "sotuvchi",
         "job_hr": "hr",
         "job_call_center": "call_center",
-        "job_kassir": "kassir"
+        "job_kassir": "kassir",
+        "job_qorovul": "qorovul"
     }
     selected_role = job_map.get(callback.data, "noma'lum")
     
@@ -388,17 +472,27 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
         "sotuvchi": "Sotuvchi",
         "hr": "HR",
         "call_center": "Call-center",
-        "kassir": "Kassir"
+        "kassir": "Kassir",
+        "qorovul": "Qo'riqlash xizmati (Oxrana)"
     }
     
-    await state.update_data(selected_role=selected_role, selected_job_name=role_names.get(selected_role, "Noma'lum"))
     data = await state.get_data()
+    branch_group = data.get('branch_group', 'tasanno')
+    
+    await state.update_data(
+        selected_role=selected_role, 
+        selected_job_name=role_names.get(selected_role, "Noma'lum")
+    )
+    
     lang = data['chosen_lang']
     
     await callback.message.answer(INFO_TEXTS[lang], parse_mode="Markdown")
     await asyncio.sleep(1.5)
     
-    q_list = QUESTIONS_BY_ROLE.get(selected_role, [])
+    # Savollarni filiallarga qarab olish
+    branch_questions = QUESTIONS_BY_BRANCH.get(branch_group, {})
+    q_list = branch_questions.get(selected_role, [])
+    
     if not q_list:
         return await callback.answer("Savollar topilmadi.", show_alert=True)
         
@@ -416,8 +510,11 @@ async def process_steps(message: types.Message, state: FSMContext):
     current_step = data['current_step']
     answers = data.get('answers', [])
     selected_role = data.get('selected_role')
+    branch_group = data.get('branch_group', 'tasanno')
     
-    q_list = QUESTIONS_BY_ROLE.get(selected_role, [])
+    branch_questions = QUESTIONS_BY_BRANCH.get(branch_group, {})
+    q_list = branch_questions.get(selected_role, [])
+    
     if not q_list:
         return
 
@@ -441,12 +538,15 @@ async def process_photo(message: types.Message, state: FSMContext):
     selected_branch = data.get('selected_branch', 'Noma\'lum')
     selected_role = data.get('selected_role')
     selected_job_name = data.get('selected_job_name', 'Noma\'lum')
-    labels = QUESTIONS_BY_ROLE.get(selected_role, [])
+    branch_group = data.get('branch_group', 'tasanno')
+    
+    branch_questions = QUESTIONS_BY_BRANCH.get(branch_group, {})
+    labels = branch_questions.get(selected_role, [])
 
     # Hisobot matnini tayyorlash
     report = f"🔔 <b>YANGI ANKETA ({lang.upper()})!</b>\n\n"
-    report += f"📍 <b>Filial:</b> {selected_branch}\n"
-    report += f"💼 <b>Ish yo'nalishi:</b> {selected_job_name}\n"
+    report += f"🏢 <b>Filial:</b> {selected_branch}\n"
+    report += f"💼 <b>Lavozim:</b> {selected_job_name}\n"
     report += "----------------------------------\n"
     
     for i, ans in enumerate(answers):
