@@ -10,7 +10,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiohttp import web
 
 # --- SOZLAMALAR ---
-TOKEN = "8533561961:AAHeZclqWf72vNF53b9MwyP_jTzrge3ceYA" 
+TOKEN = "8946866791:AAHZh-85Ud1oJbrbmGAb4mR6Wey2gjSIu48" 
 ADMIN_IDS = [6339752659, 7351189083]
 
 logging.basicConfig(level=logging.INFO)
