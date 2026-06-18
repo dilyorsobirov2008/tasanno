@@ -11,35 +11,11 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 TOKEN = "8533561961:AAH327dM2cGjHC3-B5NovX_pKHzUwW_JdOg" 
-ADMIN_IDS = [6339752659, 7351189083] # Adminlar botga /start bosgan bo'lishi shart!
+ADMIN_IDS = [6339752659, 7351189083]
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
-
-# --- ISH BO'LIMLARI TUGMALARI ---
-JOBS = {
-    "uz": [
-        "Sotuvchi",
-        "Reklama",
-        "Ombor",
-        "Call-center",
-        "Kassa",
-        "Undiruv",
-        "HR",
-        "Kassir"
-    ],
-    "ru": [
-        "Продавец",
-        "Реклама",
-        "Склад",
-        "Call-center",
-        "Касса",
-        "Взыскание",
-        "HR",
-        "Кассир"
-    ]
-}
 
 # --- RENDER UCHUN PORT VA WEB SERVER ---
 async def handle(request):
@@ -72,7 +48,6 @@ INFO_TEXTS = {
     )
 }
 
-
 SOTUVCHI_QUESTIONS = [
     "F.I.Sh.", "Tug‘ilgan sana (kun/oy/yil)", "Yashash manzilingiz", "Telefon raqamingiz", 
     "Oilangiz haqida qisqacha ma'lumot", "Ma'lumotingiz (Oliy / O'rta maxsus / O'rta)", 
@@ -91,7 +66,7 @@ SOTUVCHI_QUESTIONS = [
     "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha (masalan, do'kon mudiri) ko'tarilmoqchisiz?", 
     "Do'kondagi hamkasbingiz kassadan pul olayotganini yoki qasddan xatoga yo'l qo'yayotganini ko'rib qoldingiz. Sizning harakatingiz qanday bo'ladi?", 
     "Mijoz juda injiq va qo'pol gapirmoqda. Unga xizmat ko'rsatishni davom ettirasizmi yoki boshqa sotuvchiga o'tkazasiz? Nega?", 
-    "Bir vaqtning o'zida bir nechta mijoz sizga murojaat qilmoqda, ammo mahsulotni tasdiqlash uchun dasturga planshet orqali kira olmayapsiz. Bunday holatda qanday yo'l tutasiz?", 
+    "Bir vaqtning o'zida bir nechta mijoz sizga murojaat qilmoqda, ammo mahsulotni tasdiqlash uchun darsrturga planshet orqali kira olmayapsiz. Bunday holatda qanday yo'l tutasiz?", 
     "Shaxsiy sotuv rejangizni bajarib bo'ldingiz, lekin jamoangiz reja ortida qolyapti. Ish vaqtingiz tugagach, uyga ketasizmi yoki jamoaga yordam berasiz? Nega?", 
     "Siz uchun bu ishda nima birinchi o'rinda: mijozning muammosini hal qilishmi yoki har bir sotuvdan keladigan shaxsiy bonus? Sababini yozing.", 
     "Sizni jamoamizga taklif qilishimiz uchun eng kuchli 3 ta jihatingizni yozing."
@@ -225,7 +200,7 @@ UNDIRUV_QUESTIONS = [
     "Bir kunda 50 dan ortiq mijoz bilan bog'lanishingiz kerak bo'lsa, ish jarayonini qanday rejalashtirasiz?",
     "Mijoz qarzdorligini tan oladi, ammo to'lash muddatini doim kechiktiradi. Sizning harakatingiz qanday bo'ladi?",
     "Siz uchun ishda nima muhimroq: reja bajarilishi yoki mijoz bilan uzoq muddatli ijobiy munosabatni saqlab qolish? Sababini tushuntiring.",
-    "Hamkasbingiz xizmat vazifasini bajarmayotgani yoki ma'lumotlarni yashirayotganini bilib qolsangiz, nima qilasiz?",
+    "Hamkasbingiz xizmat vazifasini bajarmayotgani yoki ma'lumotlarni yashirayotgani bilib qolsangiz, nima qilasiz?",
     "Bir vaqtning o'zida bir nechta mijozlar bilan bog'lanishingiz, hisobot topshirishingiz va rahbar topshirig'ini bajarishingiz kerak. Ishlarni qanday ustuvorlashtirasiz?",
     "Mijoz qarzdorligi bo'yicha siz aytgan va'dasini bajarmadi. Keyingi harakatingiz qanday bo'ladi?",
     "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha ko'tarilishni maqsad qilgansiz?",
@@ -285,7 +260,7 @@ KASSIR_QUESTIONS = [
     "Kassa apparati yoki dastur ishlamay qolsa, qanday harakat qilasiz?",
     "Hamkasbingiz kassadan pul olayotganini yoki qoidabuzarlik qilayotganini ko‘rib qolsangiz, nima qilasiz?",
     "Ish davomida charchoq yoki stressni qanday boshqarasiz?",
-    "Bir mijozning mahsulotlari hisoblanayotgan paytda boshqa mijoz sizdan yordam so‘radi. Qanday yo‘l tutasiz?",
+    "Bir mijoz၏ mahsulotlari hisoblanayotgan paytda boshqa mijoz sizdan yordam so‘radi. Qanday yo‘l tutasiz?",
     "Siz uchun ishda nima muhimroq: tezlikmi yoki aniqlik? Nima uchun?",
     "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha ko‘tarilishni maqsad qilgansiz?",
     "Ushbu ish orqali hayotingizdagi qaysi moliyaviy maqsadlaringizga erishmoqchisiz?",
@@ -295,7 +270,7 @@ KASSIR_QUESTIONS = [
     "Qaytim berishda nimalarga e'tibor berasiz?",
     "Navbat ko'p, tizim sekin bo'lganda o'zingizni qanday tutasiz?",
     "Mijozlarga vaziyatni qanday tushuntirasiz?",
-    "Navbatni imkon qadar tez va sifatli boshqarish uchun qanday choralar ko'rasiz?"
+    "Navbatni imkon qadar tez va sifatli boshqarish uchun qanday choralar ko'raxasiz?"
 ]
 
 # --- YO‘NALISH BO‘YICHA SAVOLLAR ---
@@ -333,8 +308,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "“Tasanno” savdo markazi va “Bozorcha” supermarketi — ishonchli xaridlar, sifatli xizmat va barqaror rivojlanish manzili."
     )
     await message.answer(intro_text, parse_mode="Markdown")
-    
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 
     builder = InlineKeyboardBuilder()
     builder.button(text="🇺🇿 O'zbekcha", callback_data="l_uz")
@@ -346,7 +320,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 @dp.callback_query(F.data.startswith("l_"))
 async def set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
-    await state.update_data(chosen_lang=lang, answers=[], current_step=0, selected_jobs=[])
+    await state.update_data(chosen_lang=lang, answers=[], current_step=0)
     
     builder = InlineKeyboardBuilder()
     builder.button(text="🏢 Shahrixon", callback_data="branch_shahrixon")
@@ -406,7 +380,6 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
     }
     selected_role = job_map.get(callback.data, "noma'lum")
     
-    # Lavozim nomini chiroyli ko'rinishda saqlash (report uchun)
     role_names = {
         "reklama": "Reklama bo'limi",
         "ombor": "Ombor bo'limi",
@@ -419,29 +392,25 @@ async def set_job_branch(callback: types.CallbackQuery, state: FSMContext):
     }
     
     await state.update_data(selected_role=selected_role, selected_job_name=role_names.get(selected_role, "Noma'lum"))
-    
     data = await state.get_data()
     lang = data['chosen_lang']
     
-    await callback.message.answer(INFO_TEXTS[lang])
+    await callback.message.answer(INFO_TEXTS[lang], parse_mode="Markdown")
     await asyncio.sleep(1.5)
     
     q_list = QUESTIONS_BY_ROLE.get(selected_role, [])
     if not q_list:
-        return await callback.answer("Tanlangan yo'nalish uchun savollar topilmadi.", show_alert=True)
+        return await callback.answer("Savollar topilmadi.", show_alert=True)
         
     await callback.message.answer(q_list[0])
-    await state.update_data(current_step=0, answers=[]) # Savollarni boshidan boshlash
     await state.set_state(Anketa.step)
-    await callback.answer()
-
-@dp.callback_query(F.data == "confirm_jobs", Anketa.step)
-async def confirm_jobs(callback: types.CallbackQuery, state: FSMContext):
-    # Ushbu funksiya endi ishlatilmaydi, lekin xavfsizlik uchun qoldirildi.
     await callback.answer()
 
 @dp.message(Anketa.step)
 async def process_steps(message: types.Message, state: FSMContext):
+    if not message.text:
+        return await message.answer("Iltimos, javobni matn shaklida yuboring.")
+
     data = await state.get_data()
     lang = data['chosen_lang']
     current_step = data['current_step']
@@ -452,9 +421,7 @@ async def process_steps(message: types.Message, state: FSMContext):
     if not q_list:
         return
 
-    if message.text:
-        answers.append(message.text)
-    
+    answers.append(message.text)
     next_step = current_step + 1
     await state.update_data(answers=answers, current_step=next_step)
     
@@ -471,28 +438,45 @@ async def process_photo(message: types.Message, state: FSMContext):
     lang = data['chosen_lang']
     answers = data['answers']
     photo_id = message.photo[-1].file_id
-
-    labels = QUESTIONS_BY_ROLE.get(data.get('selected_role'), [])
     selected_branch = data.get('selected_branch', 'Noma\'lum')
+    selected_role = data.get('selected_role')
     selected_job_name = data.get('selected_job_name', 'Noma\'lum')
+    labels = QUESTIONS_BY_ROLE.get(selected_role, [])
+
+    report = f"🔔 <b>YANGI ANKETA ({lang.upper()})!</b>\n\n"
+    report += f"📍 <b>Filial:</b> {selected_branch}\n"
+    report += f"💼 <b>Ish yo'nalishi:</b> {selected_job_name}\n"
+    report += "----------------------------------\n"
     
-    report = f"🔔 Yangi anketa ({lang})!\n📍 Filial: {selected_branch}\n"
-    report += f"💼 Ish yo'nalishi: {selected_job_name}\n\n"
     for i, ans in enumerate(answers):
-        if i < len(labels):
-            report += f"🔹 {labels[i]}: {ans}\n"
-    
-    try:
-        for admin_id in ADMIN_IDS:
-            try:
-                await bot.send_photo(chat_id=admin_id, photo=photo_id, caption=report)
-            except Exception as e:
-                logging.error(f"Admin {admin_id} ga yuborishda xatolik: {e}")
-        await message.answer("Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу.")
+        label = labels[i] if i < len(labels) else f"Savol {i+1}"
+        report += f"🔹 <b>{label}:</b> {ans}\n"
+
+    success_notified = False
+    for admin_id in ADMIN_IDS:
+        try:
+            # Hisobot uzun bo'lishi mumkin, shuning uchun matnni birinchi yuboramiz (limit 4096)
+            # Keyin rasmni yuboramiz.
+            await bot.send_message(chat_id=admin_id, text=report, parse_mode="HTML")
+            await bot.send_photo(chat_id=admin_id, photo=photo_id, caption=f"Anketa egasining rasmi: {answers[0] if answers else ''}")
+            success_notified = True
+        except Exception as e:
+            logging.error(f"Xatolik (Admin {admin_id}): {e}")
+
+    if success_notified:
+        msg = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
+        await message.answer(msg)
         await state.clear()
-    except Exception as e:
-        logging.error(f"Xatolik: {e}")
-        await message.answer("Xatolik! Admin botni hali faollashtirmagan (Admin /start bosishi shart).")
+    else:
+        msg = "Xatolik! Adminlar bilan bog'lanishda muammo yuz berdi. Iltimos, keyinroq urinib ko'ring."
+        await message.answer(msg)
+
+@dp.message(Anketa.photo)
+async def photo_fallback(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('chosen_lang', 'uz')
+    prompt = "Iltimos, faqat rasm yuboring (3x4 yoki selfi):" if lang == 'uz' else "Пожалуйста, отправьте только фото (3х4 или селфи):"
+    await message.answer(prompt)
 
 async def main():
     asyncio.create_task(start_web_server())
