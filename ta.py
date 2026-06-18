@@ -443,6 +443,7 @@ async def process_photo(message: types.Message, state: FSMContext):
     selected_job_name = data.get('selected_job_name', 'Noma\'lum')
     labels = QUESTIONS_BY_ROLE.get(selected_role, [])
 
+    # Hisobot matnini tayyorlash
     report = f"🔔 <b>YANGI ANKETA ({lang.upper()})!</b>\n\n"
     report += f"📍 <b>Filial:</b> {selected_branch}\n"
     report += f"💼 <b>Ish yo'nalishi:</b> {selected_job_name}\n"
@@ -452,24 +453,114 @@ async def process_photo(message: types.Message, state: FSMContext):
         label = labels[i] if i < len(labels) else f"Savol {i+1}"
         report += f"🔹 <b>{label}:</b> {ans}\n"
 
+    # Adminlar uchun tugmalar yaratish
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Ijobiy", callback_data=f"ans_ijobiy_{message.from_user.id}")
+    builder.button(text="🟡 Zaxira", callback_data=f"ans_zaxira_{message.from_user.id}")
+    builder.button(text="❌ Rad etish", callback_data=f"ans_rad_{message.from_user.id}")
+    builder.adjust(3)
+    keyboard = builder.as_markup()
+
     success_notified = False
+    broadcast_data = [] # Barcha adminlardagi xabar ID larini saqlash uchun
+    
     for admin_id in ADMIN_IDS:
         try:
-            # Hisobot uzun bo'lishi mumkin, shuning uchun matnni birinchi yuboramiz (limit 4096)
-            # Keyin rasmni yuboramiz.
-            await bot.send_message(chat_id=admin_id, text=report, parse_mode="HTML")
+            # Hisobot va rasmni barcha adminlarga yuborish
+            # Tugmalar faqat matnli xabarga qo'shiladi
+            admin_msg = await bot.send_message(chat_id=admin_id, text=report, parse_mode="HTML", reply_markup=keyboard)
             await bot.send_photo(chat_id=admin_id, photo=photo_id, caption=f"Anketa egasining rasmi: {answers[0] if answers else ''}")
+            broadcast_data.append((admin_id, admin_msg.message_id))
             success_notified = True
         except Exception as e:
-            logging.error(f"Xatolik (Admin {admin_id}): {e}")
+            logging.error(f"Admin {admin_id} ga anketa yuborishda xatolik: {e}")
 
     if success_notified:
-        msg = "Rahmat! Ma'lumotlaringiz adminga yuborildi." if lang == 'uz' else "Спасибо! Ваши данные отправлены админу."
-        await message.answer(msg)
+        # Xabar ID larini saqlash (qayta ishlash uchun)
+        if not hasattr(bot, 'anketa_tracking'):
+            bot.anketa_tracking = {}
+        bot.anketa_tracking[str(message.from_user.id)] = broadcast_data
+
+        confirmation_text = (
+            "Hurmatli nomzod!\n\n"
+            "Anketangiz muvaffaqiyatli qabul qilindi. Ma'lumotlaringiz ko'rib chiqilgach, "
+            "3 ish kuni ichida siz bilan bog'lanamiz va natija haqida xabar beramiz.\n\n"
+            "E'tiboringiz uchun rahmat va sizga omad tilaymiz!\n\n"
+            "Tasanno Savdo Markazi & Bozorcha Supermarketi\n"
+            "HR bo'limi"
+        )
+        await message.answer(confirmation_text)
         await state.clear()
     else:
-        msg = "Xatolik! Adminlar bilan bog'lanishda muammo yuz berdi. Iltimos, keyinroq urinib ko'ring."
-        await message.answer(msg)
+        error_msg = "Xatolik yuz berdi. Anketani yuborishda muammo bo'ldi. Iltimos, keyinroq qayta urinib ko'ring yoki adminlar bilan bog'laning."
+        await message.answer(error_msg)
+
+# --- ADMIN QARORI HANDLING ---
+@dp.callback_query(F.data.startswith("ans_"))
+async def handle_admin_decision(callback: types.CallbackQuery):
+    parts = callback.data.split("_")
+    action = parts[1] # ijobiy, zaxira, rad
+    target_user_id = parts[2]
+    
+    # Tracking dan ma'lumotlarni olish
+    tracking = getattr(bot, 'anketa_tracking', {})
+    if target_user_id not in tracking:
+        return await callback.answer("Bu anketa ma'lumotlari topilmadi yoki bot qayta ishga tushgan.", show_alert=True)
+    
+    messages_to_update = tracking.pop(target_user_id) # Bir martalik qayta ishlash
+    
+    response_texts = {
+        "ijobiy": (
+            "✅ <b>Ijobiy</b>\n\n"
+            "Hurmatli nomzod!\n\n"
+            "Sizning nomzodingiz ko'rib chiqildi va vakansiya talablariga mos deb topildi. "
+            "Keyingi bosqichlar bo'yicha ma'lumot berish uchun tez orada siz bilan bog'lanamiz.\n\n"
+            "Tasanno Savdo Markazi & Bozorcha Supermarketi\n"
+            "HR bo'limi"
+        ),
+        "zaxira": (
+            "🟡 <b>Zaxira</b>\n\n"
+            "Hurmatli nomzod!\n\n"
+            "Sizning anketangiz ko'rib chiqildi. Hozirgi vaqtda vakansiya bo'yicha tanlov yakunlangan bo'lsa-da, "
+            "nomzodingiz istiqbolli deb topildi va zaxira nomzodlar bazasiga kiritildi.\n\n"
+            "Kelgusida sizga mos bo'sh ish o'rinlari yuzaga kelganda, albatta siz bilan bog'lanamiz.\n\n"
+            "Tasanno Savdo Markazi & Bozorcha Supermarketi\n"
+            "HR bo'limi"
+        ),
+        "rad": (
+            "❌ <b>Rad etish</b>\n\n"
+            "Hurmatli nomzod!\n\n"
+            "Sizning anketangiz ko'rib chiqildi. Afsuski, hozirgi vakansiya bo'yicha nomzodingiz tanlovdan o'tmadi.\n\n"
+            "Kompaniyamizga bildirgan qiziqishingiz uchun minnatdorchilik bildiramiz va "
+            "kelgusidagi faoliyatingizda muvaffaqiyatlar tilaymiz.\n\n"
+            "Tasanno Savdo Markazi & Bozorcha Supermarketi\n"
+            "HR bo'limi"
+        )
+    }
+    
+    text_to_user = response_texts.get(action)
+    status_label = "✅ Ijobiy" if action == "ijobiy" else "🟡 Zaxira" if action == "zaxira" else "❌ Rad etildi"
+    
+    # Foydalanuvchiga yuborish
+    try:
+        await bot.send_message(chat_id=target_user_id, text=text_to_user, parse_mode="HTML")
+    except Exception as e:
+        logging.error(f"Foydalanuvchiga javob yuborishda xatolik: {e}")
+        return await callback.answer("Foydalanuvchiga xabar yetib bormadi (botni bloklagan bo'lishi mumkin).", show_alert=True)
+
+    # Barcha adminlardagi tugmalarni yangilash
+    for admin_id, msg_id in messages_to_update:
+        try:
+            await bot.edit_message_reply_markup(chat_id=admin_id, message_id=msg_id, reply_markup=None)
+            # Tugmani bosgan adminga status ko'rsatish
+            if admin_id == callback.from_user.id:
+                await bot.send_message(chat_id=admin_id, text=f"✅ Javob yuborildi: {status_label}")
+            else:
+                await bot.send_message(chat_id=admin_id, text=f"ℹ️ Ushbu anketa boshqa admin tomonidan ko'rib chiqildi: {status_label}")
+        except Exception:
+            pass
+
+    await callback.answer("Javob muvaffaqiyatli yuborildi.")
 
 @dp.message(Anketa.photo)
 async def photo_fallback(message: types.Message, state: FSMContext):
