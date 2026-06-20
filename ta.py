@@ -3,7 +3,7 @@ import logging
 import os
 import asyncpg
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from aiogram import Bot, Dispatcher, types, F
@@ -24,50 +24,53 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
-# --- DATA BAZA BILAN ISHLASH (PostgreSQL - Neon.tech) ---
+# --- NEON.TECH (POSTGRESQL) LOGIKASI ---
 pool = None
 
 async def init_db():
+    """Bot ishga tushganda jadvalni tekshirish va yaratish"""
     global pool
     try:
         pool = await asyncpg.create_pool(DATABASE_URL, ssl='require')
         async with pool.acquire() as conn:
             await conn.execute('''
-                CREATE TABLE IF NOT EXISTS stats (
+                CREATE TABLE IF NOT EXISTS anketalar (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT,
-                    branch TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    filial VARCHAR(255),
+                    sana TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-        logging.info("PostgreSQL database initialized.")
+        logging.info("Neon.tech: 'anketalar' jadvali tayyor.")
     except Exception as e:
-        logging.error(f"Ma'lumotlar bazasiga ulanishda xatolik: {e}")
+        logging.error(f"Ma'lumotlar bazasida xatolik: {e}")
 
-async def save_stat(user_id, branch):
+async def save_anketa(user_id: int, filial: str):
+    """Anketa ma'lumotlarini bazaga saqlash"""
     if not pool: return
     try:
         async with pool.acquire() as conn:
-            await conn.execute('INSERT INTO stats (user_id, branch) VALUES ($1, $2)', user_id, branch)
+            await conn.execute(
+                'INSERT INTO anketalar (user_id, filial) VALUES ($1, $2)', 
+                user_id, filial
+            )
     except Exception as e:
-        logging.error(f"Statistika saqlashda xatolik: {e}")
+        logging.error(f"Bazaga yozishda xatolik: {e}")
 
-# --- HISOBOT YUBORISH ---
+# --- AVTOMATIK HISOBOT TIZIMI ---
 async def send_monthly_report():
+    """Har oyning 30-sanasida (Fevralda oxirgi kunida) yuboriladigan hisobot"""
     if not pool: return
     now = datetime.now()
+    month_year = now.strftime("%m-%Y")
     
-    uz_months = {
-        1: "Yanvar", 2: "Fevral", 3: "Mart", 4: "Aprel", 5: "May", 6: "Iyun",
-        7: "Iyul", 8: "Avgust", 9: "Sentabr", 10: "Oktabr", 11: "Noyabr", 12: "Dekabr"
-    }
-    month_label = f"{uz_months[now.month]} {now.year}"
-    
+    # Oxirgi 30 kunlik statistikani filiallar kesimida olish
     query = """
-        SELECT branch, COUNT(*) as count 
-        FROM stats 
-        WHERE created_at >= NOW() - INTERVAL '30 days'
-        GROUP BY branch
+        SELECT filial, COUNT(*) as soni 
+        FROM anketalar 
+        WHERE sana >= NOW() - INTERVAL '30 days'
+        GROUP BY filial
+        ORDER BY soni DESC
     """
     
     try:
@@ -75,24 +78,26 @@ async def send_monthly_report():
             rows = await conn.fetch(query)
         
         if not rows:
-            logging.info("So'nggi 30 kun uchun ma'lumotlar topilmadi.")
+            logging.info("Hisobot uchun ma'lumot topilmadi.")
             return
 
-        total_count = sum(row['count'] for row in rows)
-        report_text = f"📊 {month_label} oyi uchun yakuniy hisobot:\n"
+        total_count = sum(row['soni'] for row in rows)
         
+        # SIZ SO'RAGAN MARKDOWN FORMAT
+        report_text = f"📊 *[{month_year}] oyi uchun 30 kunlik yakuniy hisobot:*\n\n"
         for row in rows:
-            report_text += f"📍 {row['branch']} filiali: {row['count']} ta anketa\n"
+            report_text += f"📍 *{row['filial']}* filiali: {row['soni']} ta anketa\n"
         
-        report_text += f"\n📥 Jami kelgan anketalar: {total_count} ta"
+        report_text += f"\n📥 *Jami kelgan anketalar soni: {total_count} ta*"
         
         for admin_id in ADMIN_IDS:
             try:
-                await bot.send_message(admin_id, report_text)
-            except Exception as e:
-                logging.error(f"Admin {admin_id} ga hisobot yuborishda xatolik: {e}")
+                await bot.send_message(admin_id, report_text, parse_mode="Markdown")
+            except Exception:
+                pass
+                
     except Exception as e:
-        logging.error(f"Hisobot tayyorlashda xatolik: {e}")
+        logging.error(f"Hisobot yuborishda xatolik: {e}")
 
 # --- RENDER UCHUN PORT VA WEB SERVER ---
 async def handle(request):
@@ -496,13 +501,13 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
     # Filial guruhini aniqlash (Bozorcha yoki Tasanno)
     branch_group = "bozorcha" if selected_branch_id == "branch_bozorcha" else "tasanno"
     
+    # Baza saqlash: Foydalanuvchi filialni tanlagan zahoti yoziladi
+    await save_anketa(callback.from_user.id, selected_branch_name)
+    
     await state.update_data(
         selected_branch=selected_branch_name,
         branch_group=branch_group
     )
-    
-    # Statistikani saqlash
-    await save_stat(callback.from_user.id, selected_branch_name)
     
     builder = InlineKeyboardBuilder()
     if branch_group == "bozorcha":
@@ -750,9 +755,10 @@ async def photo_fallback(message: types.Message, state: FSMContext):
     await message.answer(prompt)
 
 async def main():
+    # 1. Bazani tayyorlash
     await init_db()
     
-    # Scheduler sozlash
+    # 2. Schedulerni sozlash
     scheduler = AsyncIOScheduler()
     
     # Fevraldan tashqari barcha oylar uchun 30-sana, 21:00
