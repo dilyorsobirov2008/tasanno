@@ -1,6 +1,11 @@
 import asyncio
 import logging
 import os
+import asyncpg
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -10,12 +15,84 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiohttp import web
 
 # --- SOZLAMALAR ---
-TOKEN = "8946866791:AAHZh-85Ud1oJbrbmGAb4mR6Wey2gjSIu48" 
+load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN", "8946866791:AAHZh-85Ud1oJbrbmGAb4mR6Wey2gjSIu48") 
 ADMIN_IDS = [6339752659, 7351189083]
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
+
+# --- DATA BAZA BILAN ISHLASH (PostgreSQL - Neon.tech) ---
+pool = None
+
+async def init_db():
+    global pool
+    try:
+        pool = await asyncpg.create_pool(DATABASE_URL, ssl='require')
+        async with pool.acquire() as conn:
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS stats (
+                    id SERIAL PRIMARY KEY,
+                    user_id BIGINT,
+                    branch TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+        logging.info("PostgreSQL database initialized.")
+    except Exception as e:
+        logging.error(f"Ma'lumotlar bazasiga ulanishda xatolik: {e}")
+
+async def save_stat(user_id, branch):
+    if not pool: return
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute('INSERT INTO stats (user_id, branch) VALUES ($1, $2)', user_id, branch)
+    except Exception as e:
+        logging.error(f"Statistika saqlashda xatolik: {e}")
+
+# --- HISOBOT YUBORISH ---
+async def send_monthly_report():
+    if not pool: return
+    now = datetime.now()
+    
+    uz_months = {
+        1: "Yanvar", 2: "Fevral", 3: "Mart", 4: "Aprel", 5: "May", 6: "Iyun",
+        7: "Iyul", 8: "Avgust", 9: "Sentabr", 10: "Oktabr", 11: "Noyabr", 12: "Dekabr"
+    }
+    month_label = f"{uz_months[now.month]} {now.year}"
+    
+    query = """
+        SELECT branch, COUNT(*) as count 
+        FROM stats 
+        WHERE created_at >= NOW() - INTERVAL '30 days'
+        GROUP BY branch
+    """
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query)
+        
+        if not rows:
+            logging.info("So'nggi 30 kun uchun ma'lumotlar topilmadi.")
+            return
+
+        total_count = sum(row['count'] for row in rows)
+        report_text = f"📊 {month_label} oyi uchun yakuniy hisobot:\n"
+        
+        for row in rows:
+            report_text += f"📍 {row['branch']} filiali: {row['count']} ta anketa\n"
+        
+        report_text += f"\n📥 Jami kelgan anketalar: {total_count} ta"
+        
+        for admin_id in ADMIN_IDS:
+            try:
+                await bot.send_message(admin_id, report_text)
+            except Exception as e:
+                logging.error(f"Admin {admin_id} ga hisobot yuborishda xatolik: {e}")
+    except Exception as e:
+        logging.error(f"Hisobot tayyorlashda xatolik: {e}")
 
 # --- RENDER UCHUN PORT VA WEB SERVER ---
 async def handle(request):
@@ -63,7 +140,7 @@ SOTUVCHI_QUESTIONS = [
     "Do'konda qimmat telefonni sotish imkoni bor, lekin u mijozga to'g'ri kelmaydi. Siz qimmatini sotasizmi yoki foydalisini? Nega?", 
     "Bu ish orqali hayotingizdagi qaysi moliyaviy maqsadingizga (uy, mashina, qarzdan qutilish va hokazo) erishmoqchisiz?", 
     "Nasiya savdoga to'lov qilishga qiynalayotgan, asbobi buzilgan jahldor mijoz keldi. Unga qanday yordam berasiz?", 
-    "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha (masalan, do'kon mudiri) ko'tarilmoqchisiz?", 
+    "Kompaniyamizda qancha vaqt ishlab, qaysi lavozimgacha (masalan, do'kon mudiri) ko'tarilishni maqsad qilgansiz?", 
     "Do'kondagi hamkasbingiz kassadan pul olayotganini yoki qasddan xatoga yo'l qo'yayotganini ko'rib qoldingiz. Sizning harakatingiz qanday bo'ladi?", 
     "Mijoz juda injiq va qo'pol gapirmoqda. Unga xizmat ko'rsatishni davom ettirasizmi yoki boshqa sotuvchiga o'tkazasiz? Nega?", 
     "Bir vaqtning o'zida bir nechta mijoz sizga murojaat qilmoqda, ammo mahsulotni tasdiqlash uchun darsrturga planshet orqali kira olmayapsiz. Bunday holatda qanday yo'l tutasiz?", 
@@ -424,6 +501,9 @@ async def set_branch(callback: types.CallbackQuery, state: FSMContext):
         branch_group=branch_group
     )
     
+    # Statistikani saqlash
+    await save_stat(callback.from_user.id, selected_branch_name)
+    
     builder = InlineKeyboardBuilder()
     if branch_group == "bozorcha":
         builder.button(text="📦 Ombor bo'limi", callback_data="job_ombor")
@@ -670,6 +750,18 @@ async def photo_fallback(message: types.Message, state: FSMContext):
     await message.answer(prompt)
 
 async def main():
+    await init_db()
+    
+    # Scheduler sozlash
+    scheduler = AsyncIOScheduler()
+    
+    # Fevraldan tashqari barcha oylar uchun 30-sana, 21:00
+    scheduler.add_job(send_monthly_report, CronTrigger(month='1,3-12', day=30, hour=21, minute=0))
+    # Fevral uchun oyning oxirgi kuni, 21:00
+    scheduler.add_job(send_monthly_report, CronTrigger(month=2, day='last', hour=21, minute=0))
+    
+    scheduler.start()
+    
     asyncio.create_task(start_web_server())
     await dp.start_polling(bot)
 
