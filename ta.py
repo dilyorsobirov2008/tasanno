@@ -8,6 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
+from aiogram.types import FSInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -162,7 +163,7 @@ REKLAMA_QUESTIONS = [
     "Reklama, marketing, SMM yoki dizayn sohasida qancha vaqt ishlagansiz?",
     "Oldingi ish joyingizdagi eng muvaffaqiyatli reklama loyihangiz yoki yutug'ingiz haqida qisqacha ma'lumot bering.",
     "Qaysi dasturlar bilan ishlay olasiz? (Photoshop, CorelDRAW, Canva, Illustrator, CapCut, Premiere Pro va boshqalar)",
-    "Ijtimoiy tarmoqlarda reklama berishda eng muhim omil nima deb hisoblaysiz?",
+    "Ijtimoiy tarmoqlarda reklama birishda eng muhim omil nima deb hisoblaysiz?",
     "Tasanno savdo markazi haqida qanday ma'lumotlarni bilasiz?",
     "Savdo markazida chegirma aksiyasi boshlandi. Uni mijozlarga yetkazish uchun qanday reklama usullaridan foydalanardingiz?",
     "Instagram yoki Telegram uchun post tayyorlashda nimalarga e'tibor berasiz?",
@@ -200,7 +201,7 @@ OMBOR_QUESTIONS = [
     "Inventarizatsiya paytida kamomad aniqlansa, qanday harakat qilasiz?",
     "Qimmatbaho maishiy texnikalarni saqlashda nimalarga e'tibor berish kerak deb o'ylaysiz?",
     "Ombordagi mahsulotlardan biri shikastlanganini aniqlasangiz, nima qilasiz?",
-    "Hamkasbingiz mahsulotlarni hisobga olmasdan olib chiqayotganini ko'rib qolsangiz, qanday yo'l tutasiz?",
+    "Hamkasbingiz mahsulotlarni hiatusga olmasdan olib chiqayotganini ko'rib qolsangiz, qanday yo'l tutasiz?",
     "Siz uchun ishda nima muhimroq: tezlikmi yoki aniqlik? Nima uchun?",
     "Bir vaqtning o'zida yuk mashinasi mahsulot olib keldi, mijozga mahsulot chiqarish kerak va rahbar hisobot so'radi. Vazifalarni qanday ustuvorlashtirasiz?",
     "Ombor dasturi ishlamay qolsa yoki mahsulotni tizimdan topa olmasangiz, qanday yo'l tutasiz?",
@@ -227,7 +228,7 @@ CALL_CENTER_QUESTIONS = [
     "Mijoz siz so'ragan ma'lumotlarni berishni istamasa, suhbatni qanday davom ettirasiz?",
     "Kun davomida juda ko'p qo'ng'iroqlar bo'lsa, ish unumdorligingizni qanday saqlab qolasiz?",
     "Mijoz sizga bir xil savolni bir necha marta qayta bersa, qanday munosabat bildirasiz?",
-    "Telefon orqali mahsulot yoki xizmat haqida qisqa va tushunarli ma'lumot bera olasizmi? Misol keltiring.",
+    "Telefon orqali mahsulot yoki xizamt haqida qisqa va tushunarli ma'lumot bera olasizmi? Misol keltiring.",
     "Reja bo'yicha amalga oshirishingiz kerak bo'lgan qo'ng'iroqlar soniga yetmayotganingizni sezsangiz, nima qilasiz?",
     "Mijoz bilan gaplashayotganda tizim ishlamay qolsa yoki internet uzilib qolsa, vaziyatni qanday boshqarasiz?",
     "Hamkasbingiz mijoz bilan noto'g'ri muomala qilayotganini eshitsangiz, nima qilasiz?",
@@ -456,19 +457,20 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "Shuningdek, Shahrixon filiali 2025-yil 25-may sanasida o‘z ishini boshlagan va qisqa vaqt ichida 20 dan ortiq xodimlarni ish bilan ta’minlashga erishgan.\n\n"
         "Kompaniya rivojlanishining navbatdagi bosqichi sifatida “Bozorcha” supermarketi 2025-yil 14-iyun sanasida o‘z faoliyatini boshladi. Bugungi kunda supermarketda 30 dan ziyod xodimlar faoliyat yuritib, aholini sifatli mahsulotlar va zamonaviy xizmat ko‘rsatish bilan ta’minlab kelmoqda.\n\n"
         "Bugungi kunda “Tasanno” savdo markazi mijozlarga barcha turdagi maishiy texnikalar, qurilish mollari, zamonaviy mebellar hamda sport mahsulotlarini keng assortimentda taklif etib kelmoqda. Shuningdek, “Bozorcha” supermarketi orqali kundalik ehtiyoj uchun zarur bo‘lgan oziq-ovqat va xalq iste’moli mahsulotlari aholiga taqdim etilmoqda.\n\n"
-        "Sifatli mahsulotlar, qulay narxlar va mijozlar ehtiyojini birinchi o‘ringa qo‘ygan xizmat ko‘rsatish tamoyili kompaniyaning asosiy ustuvor yo‘nalishlaridan hisoblanadi.\n\n"
-        "Bugungi kunda kompaniya tarkibidagi barcha filial va supermarketlarda jami 170 dan ortiq xodimlar faoliyat yuritib, aholi farovonligi va mijozlar ehtiyojlarini qondirish yo‘lida xizmat ko‘rsatib kelmoqda.\n\n"
+        "Sifatli mahsulotlar, qulay narxlar y mijozlar ehtiyojini birinchi o‘ringa qo‘ygan xizmat ko‘rsatish tamoyili kompaniyaning asosiy ustuvor yo‘nalishlaridan hisoblanadi.\n\n"
+        "Bugungi kunda kompaniya tarkibidagi barcha filial va supermarketlarda jami 170 dan ortiq xodimlar faoliyat yuritib, aholi farovonligi va mijozlar ehtiyojrini qondirish yo‘lida xizmat ko‘rsatib kelmoqda.\n\n"
         "“Tasanno” savdo markazi va “Bozorcha” supermarketi — ishonchli xaridlar, sifatli xizmat va barqaror rivojlanish manzili."
     )
+    # 1. Kompaniya haqida matn
     await message.answer(intro_text, parse_mode="Markdown")
-    await asyncio.sleep(2)
-
-    builder = InlineKeyboardBuilder()
-    builder.button(text="🇺🇿 O'zbekcha", callback_data="l_uz")
-    builder.button(text="🇷🇺 Русский", callback_data="l_ru")
-    builder.adjust(1)
-    await message.answer("Tasanno savdo markazining ichki «Anketalar» to'ldirish botiga xush kelibsiz.\nTilni tanlang / Выберите язык:", reply_markup=builder.as_markup())
-    await state.set_state(Anketa.lang)
+    
+    # 2. 1-rasm (biz.jpg)
+    photo1 = FSInputFile("biz.jpg")
+    await bot.send_photo(chat_id=message.chat.id, photo=photo1)
+    
+    # 3. 2-rasm (biz2.jpg)
+    photo2 = FSInputFile("biz2.jpg")
+    await bot.send_photo(chat_id=message.chat.id, photo=photo2)
 
 @dp.callback_query(F.data.startswith("l_"))
 async def set_lang(callback: types.CallbackQuery, state: FSMContext):
