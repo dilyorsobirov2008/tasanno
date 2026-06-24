@@ -12,7 +12,8 @@ from aiogram.types import FSInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from aiogram.filters.callback_data import CallbackData
 from aiohttp import web
 
 # --- SOZLAMALAR ---
@@ -38,14 +39,9 @@ async def init_db():
     """Bot ishga tushganda jadvalni tekshirish va yaratish"""
     global pool
     try:
-        # Localhost uchun ssl='require' shart emas
-        pool = await asyncpg.create_pool(
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME,
-            host=DB_HOST,
-            port=DB_PORT
-        )
+        # DSN formatidan foydalanamiz (Localhost uchun ishonchliroq)
+        dsn = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        pool = await asyncpg.create_pool(dsn)
         async with pool.acquire() as conn:
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS anketalar (
@@ -459,6 +455,31 @@ class Anketa(StatesGroup):
     step = State()
     photo = State()
 
+# --- ADMIN PANEL VA HISOBOT TIZIMI ---
+
+class BranchReportCallback(CallbackData, prefix="rep"):
+    branch_name: str
+
+def get_admin_kb():
+    """Adminlar uchun asosiy tugmalar"""
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="📊 Oylik hisobotlar")
+    builder.adjust(1)
+    return builder.as_markup(resize_keyboard=True)
+
+def get_report_menu_kb():
+    """Filiallar tanlash uchun inline menyu"""
+    builder = InlineKeyboardBuilder()
+    # Siz aytgan 4 ta filial
+    branches = ["1-filial", "2-filial", "3-filial", "4-filial"]
+    for b in branches:
+        builder.button(text=f"📍 {b}", callback_data=BranchReportCallback(branch_name=b))
+    
+    builder.button(text="🌐 Jami (Barcha filiallar)", callback_data=BranchReportCallback(branch_name="all"))
+    builder.button(text="⬅️ Orqaga", callback_data="admin_back_to_panel")
+    builder.adjust(2, 2, 1, 1)
+    return builder.as_markup()
+
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
@@ -786,6 +807,58 @@ async def handle_admin_decision(callback: types.CallbackQuery):
             pass
 
     await callback.answer("Javob muvaffaqiyatli yuborildi.")
+
+# --- ADMIN PANEL HANDLERLARI ---
+
+@dp.message(Command("admin"), F.from_user.id.in_(ADMIN_IDS))
+async def cmd_admin(message: types.Message):
+    """Admin panelni ochish"""
+    await message.answer("Xush kelibsiz, Admin!", reply_markup=get_admin_kb())
+
+@dp.message(F.text == "📊 Oylik hisobotlar", F.from_user.id.in_(ADMIN_IDS))
+async def admin_report_start(message: types.Message):
+    """Hisobot menyusini ko'rsatish"""
+    await message.answer(
+        "Filialni tanlang:", 
+        reply_markup=get_report_menu_kb()
+    )
+
+@dp.callback_query(BranchReportCallback.filter(), F.from_user.id.in_(ADMIN_IDS))
+async def process_report_query(callback: types.CallbackQuery, callback_data: BranchReportCallback):
+    """Filial bo'yicha hisobot tayyorlash"""
+    if not pool:
+        return await callback.answer("Baza bilan bog'lanish yo'q.", show_alert=True)
+    
+    branch = callback_data.branch_name
+    
+    # SQL so'rovi (Siz so'ragan formatda: applications jadvali)
+    if branch == "all":
+        query = "SELECT COUNT(*) FROM applications WHERE created_at >= NOW() - INTERVAL '30 days'"
+        params = []
+        label = "Jami (Barcha filiallar)"
+    else:
+        query = "SELECT COUNT(*) FROM applications WHERE branch = $1 AND created_at >= NOW() - INTERVAL '30 days'"
+        params = [branch]
+        label = f"📍 {branch}"
+
+    try:
+        async with pool.acquire() as conn:
+            count = await conn.fetchval(query, *params)
+        
+        text = (
+            f"📊 <b>Oylik hisobot</b>\n\n"
+            f"🏢 Filial: {label}\n"
+            f"📅 Oxirgi 30 kunlik natija: <b>{count} ta anketa</b>"
+        )
+        await callback.message.edit_text(text, reply_markup=get_report_menu_kb(), parse_mode="HTML")
+    except Exception as e:
+        await callback.answer(f"Xatolik: {e}", show_alert=True)
+
+@dp.callback_query(F.data == "admin_back_to_panel", F.from_user.id.in_(ADMIN_IDS))
+async def admin_back_to_panel(callback: types.CallbackQuery):
+    """Inline menyudan orqaga qaytish"""
+    await callback.message.delete()
+    await callback.message.answer("Admin panel", reply_markup=get_admin_kb())
 
 @dp.message(Anketa.photo)
 async def photo_fallback(message: types.Message, state: FSMContext):
