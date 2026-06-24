@@ -17,9 +17,15 @@ from aiohttp import web
 
 # --- SOZLAMALAR ---
 load_dotenv()
-TOKEN = os.getenv("BOT_TOKEN", "8946866791:AAHZh-85Ud1oJbrbmGAb4mR6Wey2gjSIu48") 
+TOKEN = os.getenv("BOT_TOKEN") 
 ADMIN_IDS = [6339752659, 7351189083]
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Local DB parametrlari
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
+DB_NAME = os.getenv("DB_NAME", "tasanno_db")
+DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
+DB_PORT = os.getenv("DB_PORT", "5432")
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -32,7 +38,14 @@ async def init_db():
     """Bot ishga tushganda jadvalni tekshirish va yaratish"""
     global pool
     try:
-        pool = await asyncpg.create_pool(DATABASE_URL, ssl='require')
+        # Localhost uchun ssl='require' shart emas
+        pool = await asyncpg.create_pool(
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            host=DB_HOST,
+            port=DB_PORT
+        )
         async with pool.acquire() as conn:
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS anketalar (
@@ -42,7 +55,7 @@ async def init_db():
                     sana TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-        logging.info("Neon.tech: 'anketalar' jadvali tayyor.")
+        logging.info(f"Local DB: '{DB_NAME}' bazasi va 'anketalar' jadvali tayyor.")
     except Exception as e:
         logging.error(f"Ma'lumotlar bazasida xatolik: {e}")
 
@@ -795,7 +808,7 @@ async def main():
     
     scheduler.start()
     
-    asyncio.create_task(start_web_server())
+    # asyncio.create_task(start_web_server())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
